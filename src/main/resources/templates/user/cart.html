@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>🛒 Your Cart</title>
+</head>
+<body>
+    <h1>Your Shopping Cart</h1>
+
+    <div th:if="${#lists.isEmpty(cartItems)}">
+        <p>Your cart is empty.</p>
+    </div>
+
+    <table th:if="${not #lists.isEmpty(cartItems)}" border="1" cellpadding="10">
+        <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+        </tr>
+       <tr th:each="item : ${cartItems}">
+    <td th:text="${item.product.name}">Product Name</td>
+    <td>
+        <form th:action="@{/cart/update}" method="post" style="display: inline;">
+            <input type="hidden" name="productId" th:value="${item.product.id}" />
+            <input type="hidden" name="action" value="decrease" />
+            <button type="submit">−</button>
+        </form>
+
+        <span th:text="${item.quantity}" style="margin: 0 10px;">1</span>
+
+        <form th:action="@{/cart/update}" method="post" style="display: inline;">
+            <input type="hidden" name="productId" th:value="${item.product.id}" />
+            <input type="hidden" name="action" value="increase" />
+            <button type="submit">+</button>
+        </form>
+    </td>
+    <td th:text="${item.product.price * item.quantity}">₹100</td>
+</tr>
+
+        <tr>
+            <td colspan="3" align="right"><strong>Total:</strong></td>
+            <td th:text="${total}">₹0</td>
+        </tr>
+    </table>
+    <script>
+    if (performance.navigation.type === 2) {
+        // user clicked back button
+        window.location.href = "/";
+    }
+</script>
+    
+</body>
+</html>

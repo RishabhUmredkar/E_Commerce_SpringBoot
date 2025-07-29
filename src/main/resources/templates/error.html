@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Oops! Something Broke 😅</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            font-size: 4rem;
+            margin: 0;
+            color: #dc3545;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        img {
+            width: 90%;
+            max-width: 320px;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        p {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 30px;
+            padding: 0 15px;
+        }
+
+        a {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+        }
+
+        a:hover {
+            background-color: #0056b3;
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 3rem;
+            }
+
+            h2 {
+                font-size: 1.2rem;
+            }
+
+            p {
+                font-size: 0.95rem;
+            }
+
+            a {
+                padding: 10px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>💥 500</h1>
+    <h2>Oops! Our server tripped on a banana peel 🍌</h2>
+
+    <img id="funnyImage" src="" alt="Funny Error" />
+
+    <p>Something went wrong on our end... maybe a squirrel chewed the wires 🐿️. Try logging in again!</p>
+
+    <a href="/login">🔁 Login Again</a>
+
+    <script>
+        const images = [
+            "https://i.imgur.com/Q2BAOd2.png", // Monkey
+            "https://i.imgur.com/zYIlgBl.png", // Cat fail
+            "https://i.imgur.com/8fFC2LR.jpeg", // Funny server down
+            "https://i.imgur.com/lzU8NbK.png", // 404 dog
+            "https://i.imgur.com/5Aqgz7o.png"  // Dinosaur goof
+        ];
+       
+        const randomIndex = Math.floor(Math.random() * images.length);
+        document.getElementById("funnyImage").src = images[randomIndex];
+    </script>
+
+</body>
+</html>

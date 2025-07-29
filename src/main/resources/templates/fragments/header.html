@@ -1,0 +1,17 @@
+<!-- header.html -->
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+    <header>
+        <!-- Visible when user is NOT logged in -->
+        <div sec:authorize="!isAuthenticated()">
+            <a href="/login">Login</a>
+        </div>
+
+        <!-- Visible when user IS logged in -->
+        <div sec:authorize="isAuthenticated()">
+            <a href="/logout">Logout</a>
+            <a href="/add-to-cart">Cart</a>
+        </div>
+    </header>
+</body>
+</html>

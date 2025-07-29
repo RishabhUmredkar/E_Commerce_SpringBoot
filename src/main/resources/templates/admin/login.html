@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Login</title>
+</head>
+<body>
+    <h2>Admin Login</h2>
+<form th:action="@{/admin/login}" method="post">
+    <label>Email:</label>
+    <input type="text" name="username" /><br/>
+
+    <label>Password:</label>
+    <input type="password" name="password" /><br/> <!-- ✅ Fix here -->
+
+    <button type="submit">Login</button>
+</form>
+
+<p th:if="${param.error}">Invalid credentials</p>
+<p th:if="${param.logout}">Logged out</p>
+
+   
+</body>
+</html>
+
