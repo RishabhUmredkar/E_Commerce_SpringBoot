@@ -4,16 +4,11 @@ import com.example.demo.service.AdminDetailsService;
 import com.example.demo.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.*;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.core.annotation.Order;
-
-import java.util.Arrays;
 
 @Configuration
 public class SecurityConfig {
@@ -46,29 +41,26 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return new ProviderManager(Arrays.asList(adminAuthProvider(), userAuthProvider()));
-    }@Bean
     @Order(1)
     public SecurityFilterChain adminSecurityFilterChain(HttpSecurity http) throws Exception {
         http
             .antMatcher("/admin/**")
-            .authorizeRequests(auth -> auth
+            .authorizeRequests()
                 .antMatchers("/admin/login", "/admin/css/**", "/admin/js/**").permitAll()
                 .anyRequest().hasRole("ADMIN")
-            )
-            .formLogin(form -> form
+            .and()
+            .formLogin()
                 .loginPage("/admin/login")
                 .loginProcessingUrl("/admin/login")
                 .defaultSuccessUrl("/admin/dashboard", true)
-                .failureUrl("/admin/login?error") // optional
+                .failureUrl("/admin/login?error")
                 .permitAll()
-            )
-            .logout(logout -> logout
+            .and()
+            .logout()
                 .logoutUrl("/admin/logout")
                 .logoutSuccessUrl("/admin/login?logout")
-            )
-            .authenticationProvider(adminAuthProvider())  // bind admin provider
+            .and()
+            .authenticationProvider(adminAuthProvider())
             .csrf().disable();
 
         return http.build();
@@ -78,26 +70,30 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain userSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeRequests(auth -> auth
-                .antMatchers("/", "/login", "/register", "/css/**", "/js/**", "/images/**").permitAll()
+            .authorizeRequests()
+            .antMatchers(
+                    "/", "/login", "/register", 
+                    "/css/**", "/js/**", "/images/**",
+                    "/products/image/**", "/user/products/image/**"
+                ).permitAll()
                 .antMatchers("/user/**", "/add-to-cart", "/cart", "/checkout").hasRole("USER")
                 .anyRequest().authenticated()
-            )
-            .formLogin(form -> form
+            .and()
+            .formLogin()
                 .loginPage("/login")
                 .loginProcessingUrl("/login")
                 .defaultSuccessUrl("/", true)
-                .failureUrl("/login?error") // optional
+                .failureUrl("/login?error")
                 .permitAll()
-            )
-            .logout(logout -> logout
+            .and()
+            .logout()
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login?logout")
                 .invalidateHttpSession(true)
                 .clearAuthentication(true)
                 .deleteCookies("JSESSIONID")
-            )
-            .authenticationProvider(userAuthProvider()) // bind user provider
+            .and()
+            .authenticationProvider(userAuthProvider())
             .csrf().disable();
 
         return http.build();

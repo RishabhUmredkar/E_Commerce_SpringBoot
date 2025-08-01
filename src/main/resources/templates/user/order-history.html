@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>My Orders</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --primary: #2d6cdf;
+      --accent: #10b981;
+      --bg: #f4f7fa;
+      --text: #2f3542;
+      --muted: #7f8c8d;
+      --card-bg: #ffffff;
+      --border-radius: 12px;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      padding: 20px;
+      color: var(--text);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2em;
+      margin-bottom: 10px;
+      color: var(--primary);
+    }
+
+    p {
+      text-align: center;
+      margin-bottom: 30px;
+      color: var(--muted);
+      font-size: 1em;
+    }
+
+    .orders-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .order-card {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .order-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-weight: 600;
+      font-size: 1.05em;
+    }
+
+    .order-id {
+      color: var(--primary);
+    }
+
+    .order-date {
+      font-size: 0.9em;
+      color: var(--muted);
+    }
+
+    .order-status {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 50px;
+      font-size: 0.75em;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 15px;
+      width: fit-content;
+    }
+
+    /* Status colors */
+    .status-pending {
+      background: #f39c12;
+      color: white;
+    }
+
+    .status-completed {
+      background: #2ecc71;
+      color: white;
+    }
+
+    .status-cancelled {
+      background: #e74c3c;
+      color: white;
+    }
+
+    .status-processing {
+      background: #3498db;
+      color: white;
+    }
+
+    .order-details {
+      font-size: 0.95em;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .order-details div {
+      margin-bottom: 6px;
+    }
+
+    .payment-mode {
+      font-style: italic;
+      color: var(--muted);
+      font-size: 0.9em;
+    }
+
+    .view-link {
+      align-self: flex-start;
+      padding: 10px 20px;
+      border-radius: 50px;
+      background-color: var(--primary);
+      color: white;
+      font-weight: bold;
+      font-size: 0.9em;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+    }
+
+    .view-link:hover {
+      background-color: #1b4f9b;
+    }
+
+    .empty-message {
+      text-align: center;
+      margin-top: 60px;
+      font-size: 1.2em;
+      color: #95a5a6;
+      font-style: italic;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 40px;
+      color: var(--primary);
+      font-weight: bold;
+      text-decoration: none;
+      font-size: 0.95em;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Order History</h1>
+  <p>Welcome, <span th:text="${username}">User</span>!</p>
+
+  <!-- Orders Container -->
+  <div th:if="${orders.size() > 0}" class="orders-container">
+    <div class="order-card" th:each="order : ${orders}">
+
+      <div class="order-header">
+        <span class="order-id" th:text="'Order #' + ${order.id}">Order #1234</span>
+        <span class="order-date" th:text="${#temporals.format(order.orderDate, 'dd MMM yyyy')}">01 Jan 2025</span>
+      </div>
+
+      <div class="order-status"
+           th:text="${order.status}"
+           th:classappend="
+             ${order.status == 'Pending'} ? ' status-pending' :
+             (${order.status == 'Completed'} ? ' status-completed' :
+             (${order.status == 'Cancelled'} ? ' status-cancelled' : ' status-processing'))">
+        Pending
+      </div>
+
+      <div class="order-details">
+        <div><strong>Total:</strong> ₹<span th:text="${order.total}">1000</span></div>
+        <div class="payment-mode" th:text="'Payment: ' + ${order.paymentMode}">Payment: UPI</div>
+      </div>
+
+      <a class="view-link" th:href="@{/order/confirmation/{id}(id=${order.id})}">View Details</a>
+    </div>
+  </div>
+
+  <!-- No orders -->
+  <div th:if="${orders.size() == 0}" class="empty-message">
+    You have no orders yet.
+  </div>
+
+  <a href="/" class="back-link">&larr; Back to Home</a>
+
+</body>
+</html>

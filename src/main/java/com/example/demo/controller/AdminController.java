@@ -1,6 +1,10 @@
 package com.example.demo.controller;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +12,10 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -24,9 +32,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.demo.entity.Order;
 import com.example.demo.entity.Product;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.service.OrderService;
 import com.example.demo.service.ProductService;
 
 @Controller
@@ -37,30 +47,59 @@ public class AdminController {
 	private UserRepository userRepository;
 //	@Autowired
 //	private ImageService imageService;
-
+//
+//	@Autowired
+//	private OrderRepository orderRepository;
 	@Autowired
 	private ProductRepository productRepository;
 	@Autowired
 	private ProductService productService;
+	@Autowired
+	private OrderService orderService;
 
 	@GetMapping("/login")
 	public String adminLogin() {
 		return "admin/login"; // ➡️ Return Thymeleaf view: templates/admin/login.html
 	}
-
 	@GetMapping("/dashboard")
-	public String dashboard(Model model) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
-			return "redirect:/admin/login?sessionExpired";
-		}
-		long totalUsers = userRepository.count(); // ✅ Fetch total users
-	    long totalProducts = productRepository.count(); // ✅ Count all products
+	public String dashboard(
+	        Model model,
+	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam(defaultValue = "5") int size,
+	        @RequestParam(required = false) String name,
+	        @RequestParam(required = false) String status,
+	        @RequestParam(required = false) String dateFrom,
+	        @RequestParam(required = false) String dateTo) {
 
-		model.addAttribute("totalUsers", totalUsers); // ✅ Send to Thymeleaf
-	    model.addAttribute("totalProducts", totalProducts); // ✅ Add to model
+	    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+	    if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
+	        return "redirect:/admin/login?sessionExpired";
+	    }
 
-		return "admin/dashboard";
+	    long totalUsers = userRepository.count();
+	    long totalProducts = productRepository.count();
+
+	    Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+	    Page<Order> filteredOrdersPage = orderService.getFilteredOrders(pageable, name, status, dateFrom, dateTo);
+
+	    long ordersTodayCount = orderService.countOrdersToday();
+	    long pendingPayments = orderService.countPendingPayments();
+
+	    model.addAttribute("pendingPaymentsCount", pendingPayments);
+	    model.addAttribute("ordersTodayCount", ordersTodayCount);
+	    model.addAttribute("totalUsers", totalUsers);
+	    model.addAttribute("totalProducts", totalProducts);
+	    model.addAttribute("filteredOrders", filteredOrdersPage.getContent());
+	    model.addAttribute("currentPage", page);
+	    model.addAttribute("totalPages", filteredOrdersPage.getTotalPages());
+
+	    // Filters to persist
+	    model.addAttribute("paramName", name);
+	    model.addAttribute("paramStatus", status);
+	    model.addAttribute("paramDateFrom", dateFrom);
+	    model.addAttribute("paramDateTo", dateTo);
+
+	    return "admin/dashboard";
 	}
 
 	@GetMapping("/products")
@@ -178,6 +217,80 @@ public class AdminController {
 	        model.addAttribute("product", product);
 	        model.addAttribute("isEdit", true); // Flag to show it's edit mode
 	        return "admin/add-product"; // Reuse the same form
+	    }
+
+	    
+	    
+		/*
+		 * @GetMapping("/orders") public String viewOrders(@RequestParam(defaultValue =
+		 * "0") int page, Model model) { int pageSize = 10;
+		 * 
+		 * Page<Order> orderPage = orderService.getAllOrders(page, pageSize);
+		 * 
+		 * model.addAttribute("orders", orderPage.getContent());
+		 * model.addAttribute("currentPage", page); model.addAttribute("totalPages",
+		 * orderPage.getTotalPages());
+		 * 
+		 * return "admin/orders"; // view name }
+		 */
+	    @GetMapping("/orders")
+	    public String manageOrders(
+	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam(defaultValue = "") String status,
+	        @RequestParam(defaultValue = "") String keyword,
+	        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+	        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+	        Model model
+	    ) {
+	        int pageSize = 8;
+
+	        Page<Order> orderPage = orderService.searchOrders(
+	            status,
+	            keyword,
+	            fromDate,
+	            toDate,
+	            page,
+	            pageSize
+	        );
+	     // Convert dates
+	        LocalDateTime from = (fromDate != null) ? fromDate.atStartOfDay() : null;
+	        LocalDateTime to = (toDate != null) ? toDate.atTime(LocalTime.MAX) : null;
+
+	        // Totals
+	        long totalOrders = orderService.getTotalOrderCount(status, keyword, fromDate, toDate);
+	        BigDecimal totalRevenue = orderService.getTotalOrderRevenue(status, keyword, fromDate, toDate);
+
+	        // Add to model
+	        model.addAttribute("totalOrders", totalOrders);
+	        model.addAttribute("totalRevenue", totalRevenue);
+
+	        model.addAttribute("orders", orderPage.getContent());
+	        model.addAttribute("currentPage", page);
+	        model.addAttribute("totalPages", orderPage.getTotalPages());
+	        model.addAttribute("status", status);
+	        model.addAttribute("keyword", keyword);
+	        model.addAttribute("fromDate", fromDate);
+	        model.addAttribute("toDate", toDate);
+
+	        return "admin/orders";
+	    }
+
+
+	    @PostMapping("/orders/updateStatus")
+	    public String updateOrderStatus(@RequestParam Long orderId,
+	                                    @RequestParam String status,
+	                                    RedirectAttributes redirectAttributes) {
+	        orderService.updateStatus(orderId, status);
+	        redirectAttributes.addFlashAttribute("success", "Order status updated!");
+	        return "redirect:/admin/orders";
+	    }
+
+	    @GetMapping("/orders/delete/{id}")
+	    public String deleteOrder(@PathVariable Long id,
+	                              RedirectAttributes redirectAttributes) {
+	        orderService.deleteOrderById(id);
+	        redirectAttributes.addFlashAttribute("success", "Order deleted!");
+	        return "redirect:/admin/orders";
 	    }
 
 	/*

@@ -141,14 +141,36 @@
 			        0
 			    </span>
 			</a>
+			   <!-- New button for Order History -->
+    <a href="/order/history" style="margin-left: 15px; text-decoration: none; color: #007bff;">
+        📜 My Orders
+    </a>
         </div>
     </div>
 
     <!-- ✅ Product Listing -->
     <div class="product-container">
         <div th:each="product : ${products}" class="product-card">
-            
-            <img th:src="${product.image}" alt="Product Image"/>
+            <!-- Product Image -->
+						<!-- <div
+							class="w-full h-24 bg-gray-100 flex items-center justify-center rounded overflow-hidden">
+							<img th:src="@{user/products/image/{id}(id=${product.id})}" class="w-24 h-24 object-cover"/>
+ <img
+								th:if="${imageMap[product.id]} == null"
+								src="https://i.imgur.com/Q2BAOd2.png"
+								alt="Default Product Image" class="object-cover h-full w-full" />
+
+						</div> -->
+						
+						<div class="w-full h-24 bg-gray-100 flex items-center justify-center rounded overflow-hidden">
+						   <img 
+						    th:src="@{/products/image/{id}(id=${product.id})}"
+						    onerror="this.onerror=null;this.src='https://i.imgur.com/Q2BAOd2.png';" 
+						    alt="Product Image"
+						    class="w-24 h-24 object-cover"
+						/>
+						</div>
+												
 
             <h3 th:text="${product.name}">Product Name</h3>
             <p th:text="${product.description}">Description</p>
@@ -206,7 +228,7 @@
         <!-- Page Numbers -->
         <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
             <a th:href="@{/?page={p}(p=${i})}"
-               th:text="${i + 1}"
+               th:text="${i + 1}"-
                th:style="${i == currentPage} ? 'margin: 0 6px; font-weight: bold; color: black; text-decoration: underline;' : 'margin: 0 6px; color: #007bff;'">
             </a>
         </span>
@@ -217,6 +239,25 @@
            style="margin: 0 8px;">Next ⏭</a>
     </div>
 </div>
-    
+     <script>
+        window.onload = function() {
+            // Check if the order was completed and clear the cart
+            var orderCompleted = '${session.orderCompleted}';
+            if (orderCompleted === 'true') {
+                // Clear the cart from localStorage
+                localStorage.removeItem("cart");
+
+                // Reset cart count to 0
+                document.getElementById('cart-count').textContent = '0';
+
+                // Optionally, reset the session flag on the server (could be done in a backend call)
+                // fetch('/clear-session-cart', { method: 'POST' });
+
+                // After processing, clear the session flag
+                // This can be done by redirecting the user back to the home page with a cleared cart
+                window.location.reload();
+            }
+        };
+    </script>
 </body>
 </html>

@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+import javax.transaction.Transactional;
+
 @Service
 public class CartService {
 
@@ -92,6 +94,16 @@ public class CartService {
 
         return optionalCartItem.map(CartItem::getQuantity).orElse(0);
     }
-
+    public double calculateTotal(List<CartItem> cartItems) {
+        double total = 0;
+        for (CartItem item : cartItems) {
+            total += item.getProduct().getPrice() * item.getQuantity();
+        }
+        return total;
+    }
+    @Transactional
+    public void clearCart(User user) {
+    	cartItemRepo.deleteByUser(user);
+    }
 
 }

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Order Confirmation</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --accent: #10b981;
+            --bg: #f9fafb;
+            --white: #ffffff;
+            --text: #1f2937;
+            --border: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--white);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .section {
+            margin-top: 30px;
+            background: #f3f4f6;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .total {
+            font-weight: 600;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+
+            th {
+                display: none;
+            }
+
+            td {
+                padding: 10px;
+                border: none;
+                border-bottom: 1px solid var(--border);
+                position: relative;
+            }
+
+            td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: #6b7280;
+                display: block;
+                margin-bottom: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Thank you for your order!</h1>
+    <p><strong>Order ID:</strong> <span th:text="${order.id}">#0001</span></p>
+    <p><strong>Placed on:</strong> 
+        <span th:text="${#temporals.format(order.orderDate, 'dd MMM yyyy HH:mm')}">25 July 2025, 14:30</span>
+    </p>
+
+    <div class="section">
+        <h2>Delivery Address</h2>
+        <p>
+            <strong th:text="${order.fullName}">John Doe</strong><br>
+            <span th:text="${order.address}">123 Street</span><br>
+            <span th:text="${order.city}">Pune</span>, 
+            <span th:text="${order.postalCode}">411001</span><br>
+            Phone: <span th:text="${order.phone}">9876543210</span>
+        </p>
+    </div>
+
+    <div class="section">
+        <h2>Order Items</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th><th>Quantity</th><th>Price</th><th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="item : ${order.items}">
+                    <td data-label="Product" th:text="${item.productName}">Sample Product</td>
+                    <td data-label="Quantity" th:text="${item.quantity}">2</td>
+                    <td data-label="Price" th:text="'₹' + ${item.price}">₹500</td>
+                    <td data-label="Total" th:text="'₹' + ${item.price * item.quantity}">₹1000</td>
+                </tr>
+                <tr class="total">
+                    <td colspan="3" style="text-align:right;"><strong>Grand Total:</strong></td>
+                    <td th:text="'₹' + ${order.total}">₹1000</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p style="margin-top: 30px;">Your order is being processed and will be delivered soon. We’ll notify you once it ships.</p>
+    
+    <!-- Redirect Button to Home -->
+    <div style="margin-top: 20px; text-align: center;">
+        <button onclick="window.location.href = '/';" style="padding: 10px 20px; font-size: 16px; background-color: var(--primary); color: white; border: none; border-radius: 8px;">Back to Home</button>
+    </div>
+</div>
+
+<script>
+    // To ensure the user is redirected to the home page when they try to go back from the confirmation page
+    window.history.pushState(null, '', window.location.href);
+    window.onpopstate = function() {
+        // When back is pressed, go to the home page
+        window.location.replace('/');
+    };
+</script>
+</body>
+</html>

@@ -2,52 +2,167 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>🛒 Your Cart</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .cart-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: center;
+            padding: 15px;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        button {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .total-row {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .empty-message {
+            text-align: center;
+            font-size: 20px;
+            color: #777;
+        }
+
+        .pay-now-btn {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .pay-now-btn button {
+            font-size: 16px;
+            padding: 10px 25px;
+            background-color: #28a745;
+        }
+
+        .pay-now-btn button:hover {
+            background-color: #218838;
+        }
+
+        .quantity-form {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .quantity-display {
+            min-width: 20px;
+        }
+    </style>
 </head>
 <body>
+
+<div class="cart-container">
     <h1>Your Shopping Cart</h1>
 
-    <div th:if="${#lists.isEmpty(cartItems)}">
+    <div th:if="${#lists.isEmpty(cartItems)}" class="empty-message">
         <p>Your cart is empty.</p>
     </div>
 
-    <table th:if="${not #lists.isEmpty(cartItems)}" border="1" cellpadding="10">
-        <tr>
-            <th>Product</th>
-            <th>Quantity</th>
-            <th>Price</th>
-            <th>Total</th>
-        </tr>
-       <tr th:each="item : ${cartItems}">
-    <td th:text="${item.product.name}">Product Name</td>
-    <td>
-        <form th:action="@{/cart/update}" method="post" style="display: inline;">
-            <input type="hidden" name="productId" th:value="${item.product.id}" />
-            <input type="hidden" name="action" value="decrease" />
-            <button type="submit">−</button>
+    <div th:if="${not #lists.isEmpty(cartItems)}">
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr th:each="item : ${cartItems}">
+                    <td th:text="${item.product.name}">Product Name</td>
+                    <td>
+                        <form th:action="@{/cart/update}" method="post" class="quantity-form">
+                            <input type="hidden" name="productId" th:value="${item.product.id}" />
+                            <button type="submit" name="action" value="decrease">−</button>
+                            <span class="quantity-display" th:text="${item.quantity}">1</span>
+                            <button type="submit" name="action" value="increase">+</button>
+                        </form>
+                    </td>
+                    <td th:text="'₹' + ${item.product.price}">₹100</td>
+                    <td th:text="'₹' + ${item.product.price * item.quantity}">₹100</td>
+                </tr>
+
+                <tr class="total-row">
+                    <td colspan="3" align="right">Total:</td>
+                    <td th:text="'₹' + ${total}">₹0</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Separate Pay Now form -->
+        <form th:action="@{/order/delivery}" method="post" class="pay-now-btn">
+            <button type="submit">🛍️ Pay Now</button>
         </form>
+    </div>
+</div>
+ <script>
+        window.onload = function() {
+            // Check if the order was completed and clear the cart
+            var orderCompleted = '${session.orderCompleted}';
+            if (orderCompleted === 'true') {
+                // Clear the cart from localStorage
+                localStorage.removeItem("cart");
 
-        <span th:text="${item.quantity}" style="margin: 0 10px;">1</span>
+                // Reset cart count to 0
+                document.getElementById('cart-count').textContent = '0';
 
-        <form th:action="@{/cart/update}" method="post" style="display: inline;">
-            <input type="hidden" name="productId" th:value="${item.product.id}" />
-            <input type="hidden" name="action" value="increase" />
-            <button type="submit">+</button>
-        </form>
-    </td>
-    <td th:text="${item.product.price * item.quantity}">₹100</td>
-</tr>
+                // Optionally, reset the session flag on the server (could be done in a backend call)
+                // fetch('/clear-session-cart', { method: 'POST' });
 
-        <tr>
-            <td colspan="3" align="right"><strong>Total:</strong></td>
-            <td th:text="${total}">₹0</td>
-        </tr>
-    </table>
-    <script>
-    if (performance.navigation.type === 2) {
-        // user clicked back button
-        window.location.href = "/";
-    }
-</script>
-    
+                // After processing, clear the session flag
+                // This can be done by redirecting the user back to the home page with a cleared cart
+                window.location.reload();
+            }
+        };
+    </script>
 </body>
 </html>

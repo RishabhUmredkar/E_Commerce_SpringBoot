@@ -17,9 +17,7 @@
 <!-- Top Navbar (mobile only) -->
 <div class="bg-blue-900 text-white p-4 flex items-center justify-between md:hidden">
     <div class="text-xl font-bold">Admin Panel</div>
-    <button onclick="toggleSidebar()" class="text-white focus:outline-none">
-        ☰
-    </button>
+    <button onclick="toggleSidebar()" class="text-white focus:outline-none">☰</button>
 </div>
 
 <div class="flex flex-col md:flex-row min-h-screen">
@@ -35,12 +33,10 @@
             <a href="/admin/payments" class="hover:bg-blue-700 p-2 rounded">Manage Payments</a>
             <a href="/admin/settings" class="hover:bg-blue-700 p-2 rounded">Settings</a>
         </nav>
-       
         <div class="p-4 border-t border-blue-700">
             <a href="/admin/logout" class="block text-red-400 hover:text-white">Logout</a>
         </div>
     </aside>
-
 
     <!-- Main Content -->
     <main class="flex-1 p-4 md:p-7">
@@ -48,27 +44,62 @@
             <h1 class="text-3xl font-semibold text-gray-800">Welcome, Admin</h1>
             <p class="text-gray-500">Here’s a quick overview of your platform</p>
         </div>
+
+        <!-- Search and Filters Form -->
+        <div class="mb-5 bg-white p-4 rounded shadow">
+            <form action="/admin/dashboard" method="get" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 items-end">
+                <div class="flex flex-col">
+                    <label for="name" class="text-sm font-medium text-gray-700">Search by Name</label>
+                    <input type="text" id="name" name="name" th:value="${paramName}" placeholder="Enter username"
+                           class="mt-1 p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="flex flex-col">
+                    <label for="status" class="text-sm font-medium text-gray-700">Status</label>
+                    <select id="status" name="status"
+                            class="mt-1 p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">All</option>
+                        <option value="PENDING" th:selected="${paramStatus == 'PENDING'}">Pending</option>
+                        <option value="COMPLETED" th:selected="${paramStatus == 'COMPLETED'}">Completed</option>
+                        <option value="Delivered" th:selected="${paramStatus == 'Delivered'}">Delivered</option>
+                        
+                    </select>
+                </div>
+                <div class="flex flex-col">
+                    <label for="dateFrom" class="text-sm font-medium text-gray-700">Date From</label>
+                    <input type="date" id="dateFrom" name="dateFrom" th:value="${paramDateFrom}"
+                           class="mt-1 p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="flex flex-col">
+                    <label for="dateTo" class="text-sm font-medium text-gray-700">Date To</label>
+                    <input type="date" id="dateTo" name="dateTo" th:value="${paramDateTo}"
+                           class="mt-1 p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="flex flex-col">
+                    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Search</button>
+                </div>
+                <div class="flex flex-col">
+					<a href="/admin/dashboard" class="ml-2 px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400">Reset Filters</a>
+                </div>
+            </form>
+        </div>
+
         <!-- Dashboard Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <a href="/admin/users">
             <div class="bg-white p-6 rounded shadow text-center">
-            	 <h2 class="text-sm text-gray-500">Total Users</h2>
- 				 <p class="text-2xl font-bold text-blue-700" th:text="${totalUsers}">0</p>
-			</div>
-	 	 </a>
-	 	 <a href="/admin/products">
-	 	 	<div class="bg-white p-6 rounded shadow text-center">
-                <h2 class="text-sm text-gray-500">Total Products</h2>
-        <p class="text-2xl font-bold text-green-600" th:text="${totalProducts}">0</p>
+                <h2 class="text-sm text-gray-500">Total Users</h2>
+                <p class="text-2xl font-bold text-blue-700" th:text="${totalUsers}">0</p>
             </div>
-         </a>
+            <div class="bg-white p-6 rounded shadow text-center">
+                <h2 class="text-sm text-gray-500">Total Products</h2>
+                <p class="text-2xl font-bold text-green-600" th:text="${totalProducts}">0</p>
+            </div>
             <div class="bg-white p-6 rounded shadow text-center">
                 <h2 class="text-sm text-gray-500">Orders Today</h2>
-                <p class="text-2xl font-bold text-yellow-500">89</p>
+                <p class="text-2xl font-bold text-yellow-500" th:text="${ordersTodayCount}">0</p>
             </div>
             <div class="bg-white p-6 rounded shadow text-center">
                 <h2 class="text-sm text-gray-500">Pending Payments</h2>
-                <p class="text-2xl font-bold text-red-500">24</p>
+                <p class="text-2xl font-bold text-red-500" th:text="${pendingPaymentsCount}">0</p>
             </div>
         </div>
 
@@ -82,32 +113,47 @@
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order ID</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Invoice</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-100">
-                        <tr>
-                            <td class="px-4 py-3">ORD1234</td>
-                            <td class="px-4 py-3">John Doe</td>
-                            <td class="px-4 py-3">₹2,999</td>
-                            <td class="px-4 py-3 text-green-600">Completed</td>
-                        </tr>
-                        <tr>
-                            <td class="px-4 py-3">ORD1235</td>
-                            <td class="px-4 py-3">Jane Smith</td>
-                            <td class="px-4 py-3">₹1,499</td>
-                            <td class="px-4 py-3 text-yellow-500">Pending</td>
-                        </tr>
-                        <tr>
-                            <td class="px-4 py-3">ORD1236</td>
-                            <td class="px-4 py-3">Ravi Kumar</td>
-                            <td class="px-4 py-3">₹3,250</td>
-                            <td class="px-4 py-3 text-red-500">Failed</td>
+                        <tr th:each="order : ${filteredOrders}">
+                            <td class="px-4 py-3" th:text="'ORD' + ${order.id}">ORD1234</td>
+                            <td th:text="${order.user.name}">John Doe</td>
+                            <td class="px-4 py-3" th:text="'₹' + ${order.total}">₹2,999</td>
+                            <td class="px-4 py-3" th:text="${#temporals.format(order.orderDate, 'dd MMM yyyy HH:mm')}">01 Jan 2025</td>
+                            <td class="px-4 py-3 font-semibold" th:classappend="
+                                ${order.status == 'Completed'} ? 'text-green-600' :
+                                (${order.status == 'Pending'} ? 'text-yellow-500' : 'text-red-500')"
+                                th:text="${order.status}">Completed</td>
+                            <td class="px-4 py-3">
+                                <a th:href="@{/order/confirmation/{id}(id=${order.id})}" class="text-blue-600 hover:underline">View</a>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
+
+        <!-- Pagination -->
+       <div class="mt-6 flex justify-center space-x-2">
+		    <div>
+		        <a th:if="${currentPage > 0}"
+		           th:href="@{'/admin/dashboard'(page=${currentPage - 1}, name=${paramName}, status=${paramStatus}, dateFrom=${paramDateFrom}, dateTo=${paramDateTo})}"
+		           class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">Previous</a>
+		
+		        <span class="px-3 py-1 text-gray-700 font-medium">
+		            Page <span th:text="${currentPage + 1}">1</span> of <span th:text="${totalPages}">1</span>
+		        </span>
+		
+		        <a th:if="${currentPage + 1 < totalPages}"
+		           th:href="@{'/admin/dashboard'(page=${currentPage + 1}, name=${paramName}, status=${paramStatus}, dateFrom=${paramDateFrom}, dateTo=${paramDateTo})}"
+		           class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">Next</a>
+		    </div>
+		</div>
+
     </main>
 </div>
 

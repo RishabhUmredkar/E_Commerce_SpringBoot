@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Checkout - Delivery Info</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1d4ed8;
+            --accent: #ef4444;
+            --bg: #f9fafb;
+            --white: #ffffff;
+            --border: #e5e7eb;
+            --text: #111827;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+        }
+
+        .wrapper {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .form-section, .summary-section {
+            flex: 1 1 480px;
+            background: var(--white);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            font-size: 20px;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 14px;
+            margin-bottom: 18px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            background-color: #f3f4f6;
+            transition: border 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--primary);
+            outline: none;
+            background-color: #fff;
+        }
+
+        button.confirm-btn {
+            background-color: var(--accent);
+            color: #fff;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: background 0.3s ease;
+        }
+
+        button.confirm-btn:hover {
+            background-color: #dc2626;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 14px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .total-row td {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .login-warning {
+            text-align: center;
+            padding: 60px 20px;
+            font-size: 18px;
+        }
+
+        .login-warning a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        #loadingSpinner {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .wrapper {
+                flex-direction: column;
+            }
+
+            .form-section, .summary-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- If not logged in -->
+<div th:if="${#authentication == null}" class="login-warning">
+    Please <a th:href="@{/login}">log in</a> to continue checkout.
+</div>
+
+<!-- If logged in -->
+<div class="wrapper" th:if="${#authentication != null}">
+    
+    <!-- Left: Form -->
+    <div class="form-section">
+        <h2>Delivery Information</h2>
+        <form id="orderForm" th:action="@{/order/confirm}" method="post" onsubmit="return validateForm();">
+            <label>Full Name</label>
+            <input type="text" name="fullName" required>
+
+            <label>Phone Number</label>
+            <input type="text" name="phone" required pattern="[6-9]\d{9}" title="Enter a valid 10-digit Indian number">
+
+            <label>Address</label>
+            <textarea name="address" rows="3" required></textarea>
+
+            <label>City</label>
+            <input type="text" name="city" required>
+
+            <label>Postal Code</label>
+            <input type="text" name="postalCode" required pattern="\d{6}" title="Enter a 6-digit PIN code">
+
+            <label>Payment Mode</label>
+            <select name="paymentMode" required>
+                <option value="COD">Cash on Delivery</option>
+                <option value="Online">Online Payment</option>
+            </select>
+
+            <!-- Razorpay hidden fields -->
+            <input type="hidden" name="razorpayPaymentId" id="razorpayPaymentId">
+            <input type="hidden" name="razorpayOrderId" id="razorpayOrderId">
+            <input type="hidden" name="razorpaySignature" id="razorpaySignature">
+
+            <!-- Confirm Button -->
+            <button type="submit" class="confirm-btn" id="payBtn">Confirm & Pay</button>
+        </form>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner">
+            <img src="https://i.imgur.com/llF5iyg.gif" alt="Loading..." width="50px">
+        </div>
+    </div>
+
+    <!-- Right: Summary -->
+    <div class="summary-section">
+        <h2>Order Summary</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="item : ${cartItems}">
+                    <td th:text="${item.product.name}">Product</td>
+                    <td th:text="${item.quantity}">1</td>
+                    <td th:text="'₹' + ${item.quantity * item.product.price}">₹0</td>
+                </tr>
+                <tr class="total-row">
+                    <td colspan="2" style="text-align: right;">Grand Total:</td>
+                    <td th:text="'₹' + ${total}">₹0</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+function validateForm() {
+    const phone = document.querySelector('input[name="phone"]');
+    const pin = document.querySelector('input[name="postalCode"]');
+    if (!phone.checkValidity()) {
+        alert(phone.title);
+        return false;
+    }
+    if (!pin.checkValidity()) {
+        alert(pin.title);
+        return false;
+    }
+    return true;
+}
+
+document.getElementById('orderForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
+    const paymentMode = document.querySelector('select[name="paymentMode"]').value;
+
+    // Disable the button and show the loading spinner
+    document.getElementById('payBtn').disabled = true;
+    document.getElementById('loadingSpinner').style.display = 'block';
+
+    if (paymentMode === 'Online') {
+        const total = /*[[${total}]]*/ 0;
+        const amount = total * 100;
+
+        fetch('/razorpay/createOrder', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: amount })
+        })
+        .then(res => res.json())
+        .then(data => {
+            const options = {
+                key: data.key,
+                amount: data.amount,
+                currency: 'INR',
+                name: 'Your Store',
+                description: 'Order Payment',
+                order_id: data.orderId,
+                prefill: {
+                    contact: document.querySelector('input[name="phone"]').value,
+                    email: /*[['' + ${#authentication?.name}]]*/ ''
+                },
+                handler: function(response) {
+                    document.getElementById('razorpayPaymentId').value = response.razorpay_payment_id;
+                    document.getElementById('razorpayOrderId').value = response.razorpay_order_id;
+                    document.getElementById('razorpaySignature').value = response.razorpay_signature;
+                    document.getElementById('orderForm').submit();
+                }
+            };
+            const rzp = new Razorpay(options);
+            rzp.on('payment.failed', function (resp) {
+                alert('Payment failed: ' + resp.error.description);
+            });
+            rzp.open();
+        })
+        .catch(() => alert("Failed to initiate payment. Please try again."))
+        .finally(() => {
+            // Hide the loading spinner and enable the button again
+            document.getElementById('loadingSpinner').style.display = 'none';
+            document.getElementById('payBtn').disabled = false;
+        });
+    } else {
+        this.submit();
+    }
+});
+/*]]>*/
+</script>
+
+</body>
+</html>
