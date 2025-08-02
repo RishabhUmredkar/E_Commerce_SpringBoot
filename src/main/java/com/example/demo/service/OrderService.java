@@ -22,8 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.entity.CartItem;
 import com.example.demo.entity.Order;
 import com.example.demo.entity.OrderItem;
+import com.example.demo.entity.Payment;
 import com.example.demo.entity.User;
 import com.example.demo.repository.OrderRepository;
+import com.example.demo.repository.PaymentRepository;
 
 @Service
 public class OrderService {
@@ -216,13 +218,40 @@ return orderRepository.save(order);
         return orderRepository.searchOrders(status, keyword, from, to, pageable);
     }
     public long getTotalOrderCount(String status, String keyword, LocalDate fromDate, LocalDate toDate) {
-        return orderRepository.countOrdersWithFilters(status, keyword, fromDate, toDate);
+        LocalDateTime from = (fromDate != null) ? fromDate.atStartOfDay() : null;
+        LocalDateTime to = (toDate != null) ? toDate.atTime(LocalTime.MAX) : null;
+        return orderRepository.countOrdersWithFilters(status, keyword, from, to);
     }
 
     public BigDecimal getTotalOrderRevenue(String status, String keyword, LocalDate fromDate, LocalDate toDate) {
-        return orderRepository.sumOrderTotalWithFilters(status, keyword, fromDate, toDate);
+        LocalDateTime from = (fromDate != null) ? fromDate.atStartOfDay() : null;
+        LocalDateTime to = (toDate != null) ? toDate.atTime(LocalTime.MAX) : null;
+        return orderRepository.sumOrderTotalWithFilters(status, keyword, from, to);
     }
 
+    
+    @Autowired
+    private PaymentRepository paymentRepository;
+    @Transactional
+    public void updateOrderStatus(Long orderId, String newStatus) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
 
+        order.setStatus(newStatus);
+        orderRepository.save(order);
+
+        paymentRepository.findByOrder_Id(orderId).ifPresent(payment -> {
+            if ("Delivered".equalsIgnoreCase(newStatus)) {
+                payment.setStatus("Completed");
+            } else if ("Cancelled".equalsIgnoreCase(newStatus)) {
+                payment.setStatus("Cancelled");
+            }
+            else{
+                payment.setStatus("Incomplete");
+            }
+            paymentRepository.save(payment);
+        });
+    }
 
 }
+

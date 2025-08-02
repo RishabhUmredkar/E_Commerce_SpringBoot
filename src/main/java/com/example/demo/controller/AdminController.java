@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -20,6 +21,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,12 +35,19 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.demo.entity.Admin;
 import com.example.demo.entity.Order;
+import com.example.demo.entity.Payment;
 import com.example.demo.entity.Product;
+import com.example.demo.entity.SettingsForm;
+import com.example.demo.entity.User;
+import com.example.demo.repository.AdminRepository;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.OrderService;
+import com.example.demo.service.PaymentService;
 import com.example.demo.service.ProductService;
+import com.example.demo.service.SettingsService;
 
 @Controller
 @RequestMapping("/admin")
@@ -57,6 +67,7 @@ public class AdminController {
 	@Autowired
 	private OrderService orderService;
 
+	
 	@GetMapping("/login")
 	public String adminLogin() {
 		return "admin/login"; // ➡️ Return Thymeleaf view: templates/admin/login.html
@@ -242,7 +253,7 @@ public class AdminController {
 	        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
 	        Model model
 	    ) {
-	        int pageSize = 8;
+	        int pageSize = 7;
 
 	        Page<Order> orderPage = orderService.searchOrders(
 	            status,
@@ -275,15 +286,22 @@ public class AdminController {
 	        return "admin/orders";
 	    }
 
-
-	    @PostMapping("/orders/updateStatus")
-	    public String updateOrderStatus(@RequestParam Long orderId,
-	                                    @RequestParam String status,
-	                                    RedirectAttributes redirectAttributes) {
-	        orderService.updateStatus(orderId, status);
-	        redirectAttributes.addFlashAttribute("success", "Order status updated!");
+		/*
+		 * @PostMapping("/orders/updateStatus") public String
+		 * updateOrderStatus(@RequestParam Long orderId,
+		 * 
+		 * @RequestParam String status, RedirectAttributes redirectAttributes) {
+		 * orderService.updateStatus(orderId, status);
+		 * redirectAttributes.addFlashAttribute("success", "Order status updated!");
+		 * return "redirect:/admin/orders"; }
+		 */
+	    @PostMapping("/order/updateStatus")
+	    public String updateOrderStatus(@RequestParam("orderId") Long orderId,
+	                                    @RequestParam("status") String newStatus) {
+	        orderService.updateOrderStatus(orderId, newStatus);
 	        return "redirect:/admin/orders";
 	    }
+
 
 	    @GetMapping("/orders/delete/{id}")
 	    public String deleteOrder(@PathVariable Long id,
@@ -292,6 +310,66 @@ public class AdminController {
 	        redirectAttributes.addFlashAttribute("success", "Order deleted!");
 	        return "redirect:/admin/orders";
 	    }
+
+	    
+	    @Autowired
+	    private PaymentService paymentService;
+
+	    @GetMapping("/payments")
+	    public String viewPayments(
+	            @RequestParam(value = "keyword", required = false) String keyword,
+	            @RequestParam(value = "status", required = false) String status,
+	            @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+	            @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+	            @RequestParam(value = "page", defaultValue = "0") int page,
+	            @RequestParam(value = "size", defaultValue = "8") int size,
+	            Model model
+	    ) {
+	    	Sort sort = Sort.by(Sort.Direction.DESC, "paymentDate").and(Sort.by(Sort.Direction.DESC, "id"));
+	    	Pageable pageable = PageRequest.of(page, size, sort);
+
+//	        Pageable pageable = PageRequest.of(page, size, Sort.by("paymentDate").descending());
+	        Page<Payment> paymentPage = paymentService.getFilteredPayments(keyword, status, fromDate, toDate, pageable);
+	        System.out.println(paymentPage.getContent());
+	        model.addAttribute("payments", paymentPage.getContent());
+	        model.addAttribute("currentPage", page);
+	        model.addAttribute("totalPages", paymentPage.getTotalPages());
+	        model.addAttribute("totalItems", paymentPage.getTotalElements());
+
+	        // preserve filters
+	        model.addAttribute("keyword", keyword);
+	        model.addAttribute("status", status);
+	        model.addAttribute("fromDate", fromDate);
+	        model.addAttribute("toDate", toDate);
+	        model.addAttribute("currentPage", page);
+	        model.addAttribute("totalPages", paymentPage.getTotalPages());
+	        model.addAttribute("totalItems", paymentPage.getTotalElements());
+
+	        return "admin/payments"; // Thymeleaf view
+	    }
+        @Autowired
+	    AdminRepository adminRepository;
+
+        @Autowired
+        SettingsService settingsService;
+        
+        @GetMapping("/settings")
+        public String showSettingsPage(Model model) {
+            SettingsForm settingsForm = settingsService.loadSettings();
+            model.addAttribute("settings", settingsForm);
+            return "admin/settings";  // Render the settings form page
+        }
+
+        @PostMapping("/settings/save")
+        public String saveSettings(@ModelAttribute SettingsForm settingsForm, RedirectAttributes redirectAttributes) {
+            try {
+                settingsService.saveSettings(settingsForm);
+                redirectAttributes.addFlashAttribute("success", "Settings updated successfully!");
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("error", "Error saving settings.");
+            }
+            return "redirect:/admin/settings";  // Redirect back to settings page
+        }
 
 	/*
 	 * @PostMapping("/admin/products/save") public String

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Settings</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+</head>
+<body class="bg-gray-100 h-screen">
+
+<!-- Top Navbar (mobile only) -->
+<div class="bg-blue-900 text-white p-4 flex items-center justify-between md:hidden">
+    <div class="text-xl font-bold">Admin Panel</div>
+    <button onclick="toggleSidebar()" class="text-white focus:outline-none">☰</button>
+</div>
+
+<div class="flex flex-col md:flex-row min-h-screen">
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="bg-blue-900 text-white w-full md:w-64 md:block hidden">
+        <div class="p-6 text-center text-xl font-bold border-b border-blue-700">Admin Panel</div>
+        <nav class="flex flex-col p-4 space-y-2">
+            <a href="/admin/dashboard" class="hover:bg-blue-700 p-2 rounded">Dashboard</a>
+            <a href="/admin/users" class="hover:bg-blue-700 p-2 rounded">Manage Users</a>
+            <a href="/admin/products" class="hover:bg-blue-700 p-2 rounded">Manage Products</a>
+            <a href="/admin/orders" class="hover:bg-blue-700 p-2 rounded">Manage Orders</a>
+            <a href="/admin/payments" class="hover:bg-blue-700 p-2 rounded">Manage Payments</a>
+            <a href="/admin/settings" class="bg-blue-700 p-2 rounded">Settings</a> <!-- Current page -->
+        </nav>
+        <div class="p-4 border-t border-blue-700">
+            <a href="/admin/logout" class="block text-red-400 hover:text-white">Logout</a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6 md:p-10 flex flex-col space-y-8 overflow-y-hidden">
+
+        <!-- Page Header -->
+        <div class="flex-shrink-0">
+            <h1 class="text-3xl font-semibold text-gray-800">Settings</h1>
+            <p class="text-gray-500">Manage your store settings here</p>
+        </div>
+
+        <!-- Settings Form -->
+        <div class="bg-white p-6 md:p-8 rounded-lg shadow-lg flex-grow overflow-y-auto">
+
+            <form action="/admin/settings/save" method="post" class="space-y-6">
+
+                <!-- Section: Store Info -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-700">Store Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Store Name -->
+                        <div class="flex flex-col">
+                            <label for="storeName" class="text-sm font-medium text-gray-700">Store Name</label>
+                            <input type="text" id="storeName" name="storeName" th:value="${settings.storeName}" placeholder="Enter your store's name"
+                                class="mt-1 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 shadow-sm">
+                        </div>
+
+                        <!-- Store Address -->
+                        <div class="flex flex-col">
+                            <label for="storeAddress" class="text-sm font-medium text-gray-700">Store Address</label>
+                            <input type="text" id="storeAddress" name="storeAddress" th:value="${settings.storeAddress}" placeholder="Enter store address"
+                                class="mt-1 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 shadow-sm">
+                        </div>
+
+                        <!-- Store Phone -->
+                        <div class="flex flex-col">
+                            <label for="storePhone" class="text-sm font-medium text-gray-700">Store Phone</label>
+                            <input type="text" id="storePhone" name="storePhone" th:value="${settings.storePhone}" placeholder="Enter phone number"
+                                class="mt-1 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 shadow-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Payment Settings -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-700">Payment Settings</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Razorpay Key -->
+                        <div class="flex flex-col">
+                            <label for="razorpayKey" class="text-sm font-medium text-gray-700">Razorpay Key</label>
+                            <input type="text" id="razorpayKey" name="razorpayKey" th:value="${settings.razorpayKey}" placeholder="Enter Razorpay Key"
+                                class="mt-1 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 shadow-sm">
+                        </div>
+
+                        <!-- Razorpay Secret -->
+                        <div class="flex flex-col">
+                            <label for="razorpaySecret" class="text-sm font-medium text-gray-700">Razorpay Secret</label>
+                            <input type="text" id="razorpaySecret" name="razorpaySecret" th:value="${settings.razorpaySecret}" placeholder="Enter Razorpay Secret"
+                                class="mt-1 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 shadow-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: SMTP Settings -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-700">SMTP Settings</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- SMTP Host -->
+                        <div class="flex flex-col">
+                            <label for="smtpHost" class="text-sm font-medium text-gray-700">SMTP Host</label>
+                            <input type="text" id="smtpHost" name="smtpHost" th:value="${settings.smtpHost}" placeholder="Enter SMTP Host"
+                                class="mt-1 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 shadow-sm">
+                        </div>
+
+                        <!-- SMTP Port -->
+                        <div class="flex flex-col">
+                            <label for="smtpPort" class="text-sm font-medium text-gray-700">SMTP Port</label>
+                            <input type="number" id="smtpPort" name="smtpPort" th:value="${settings.smtpPort}" placeholder="Enter SMTP Port"
+                                class="mt-1 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 shadow-sm">
+                        </div>
+
+                        <!-- SMTP User -->
+                        <div class="flex flex-col">
+                            <label for="smtpUser" class="text-sm font-medium text-gray-700">SMTP User</label>
+                            <input type="text" id="smtpUser" name="smtpUser" th:value="${settings.smtpUser}" placeholder="Enter SMTP Username"
+                                class="mt-1 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 shadow-sm">
+                        </div>
+
+                        <!-- SMTP Password -->
+                        <div class="flex flex-col">
+                            <label for="smtpPassword" class="text-sm font-medium text-gray-700">SMTP Password</label>
+                            <input type="password" id="smtpPassword" name="smtpPassword" th:value="${settings.smtpPassword}" placeholder="Enter SMTP Password"
+                                class="mt-1 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 shadow-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex justify-end mt-4">
+                    <button type="submit" class="bg-blue-600 text-white py-3 px-6 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-300">
+                        Save Settings
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </main>
+</div>
+
+<script defer>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('hidden');
+    }
+</script>
+
+</body>
+</html>

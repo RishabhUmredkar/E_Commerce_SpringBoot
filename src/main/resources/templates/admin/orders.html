@@ -136,15 +136,17 @@
                         <td class="px-4 py-3" th:text="'₹' + ${order.total}">₹1999</td>
                         <td class="px-4 py-3" th:text="${#temporals.format(order.orderDate, 'dd MMM yyyy HH:mm')}">29 Jul 2025</td>
                         <td class="px-4 py-3">
-                            <form th:action="@{/admin/orders/updateStatus}" method="post">
-                                <input type="hidden" name="orderId" th:value="${order.id}" />
-                                <select name="status" class="border p-1 rounded" onchange="this.form.submit()">
-                                    <option th:selected="${order.status == 'Pending'}">Pending</option>
-                                    <option th:selected="${order.status == 'Shipped'}">Shipped</option>
-                                    <option th:selected="${order.status == 'Delivered'}">Delivered</option>
-                                    <option th:selected="${order.status == 'Cancelled'}">Cancelled</option>
-                                </select>
-                            </form>
+                            <form th:action="@{/admin/order/updateStatus}" method="post">
+    <input type="hidden" name="orderId" th:value="${order.id}" />
+    
+    <select name="status" class="border p-1 rounded" onchange="this.form.submit()">
+        <option value="Pending" th:selected="${order.status == 'Pending'}">Pending</option>
+        <option value="Shipped" th:selected="${order.status == 'Shipped'}">Shipped</option>
+        <option value="Delivered" th:selected="${order.status == 'Delivered'}">Delivered</option>
+        <option value="Cancelled" th:selected="${order.status == 'Cancelled'}">Cancelled</option>
+    </select>
+</form>
+
                         </td>
                         <td class="px-4 py-3">
                             <a th:href="@{/order/confirmation/{id}(id=${order.id})}" class="text-blue-600 hover:underline">View</a> |

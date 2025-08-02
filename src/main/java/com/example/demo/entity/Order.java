@@ -30,7 +30,9 @@ public class Order {
     @Column(nullable = false)
     private String status = "PENDING"; // Default when order is placed
 
-    
+    @OneToMany(mappedBy = "order")
+    private List<Payment> payments;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderItem> items = new ArrayList<>();
     

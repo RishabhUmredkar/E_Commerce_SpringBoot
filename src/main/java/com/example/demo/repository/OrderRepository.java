@@ -105,18 +105,18 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     	     + "(:toDate IS NULL OR o.orderDate <= :toDate)")
     	long countOrdersWithFilters(@Param("status") String status,
     	                            @Param("keyword") String keyword,
-    	                            @Param("fromDate") LocalDate fromDate,
-    	                            @Param("toDate") LocalDate toDate);
+    	                            @Param("fromDate") LocalDateTime fromDate,
+    	                            @Param("toDate") LocalDateTime toDate);
 
-    	@Query("SELECT COALESCE(SUM(o.total), 0) FROM Order o WHERE "
+    @Query("SELECT COALESCE(SUM(o.total), 0) FROM Order o WHERE "
     	     + "(:status IS NULL OR o.status = :status) AND "
     	     + "(:keyword IS NULL OR LOWER(o.user.name) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND "
     	     + "(:fromDate IS NULL OR o.orderDate >= :fromDate) AND "
     	     + "(:toDate IS NULL OR o.orderDate <= :toDate)")
     	BigDecimal sumOrderTotalWithFilters(@Param("status") String status,
     	                                    @Param("keyword") String keyword,
-    	                                    @Param("fromDate") LocalDate fromDate,
-    	                                    @Param("toDate") LocalDate toDate);
+    	                                    @Param("fromDate") LocalDateTime fromDate,
+    	                                    @Param("toDate") LocalDateTime toDate);
 
 
 }

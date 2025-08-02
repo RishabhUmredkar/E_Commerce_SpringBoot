@@ -2,11 +2,13 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.CartItem;
 import com.example.demo.entity.Order;
+import com.example.demo.entity.Payment;
 import com.example.demo.entity.User;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.CartService;
 import com.example.demo.service.EmailService;
 import com.example.demo.service.OrderService;
+import com.example.demo.service.PaymentService;
 import com.razorpay.Utils;
 
 import org.json.JSONObject;
@@ -17,6 +19,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -32,6 +35,9 @@ public class OrderController {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private PaymentService paymentService;
 
     public OrderController(CartService cartService, OrderService orderService, UserRepository userRepo) {
         this.cartService = cartService;
@@ -80,9 +86,23 @@ public class OrderController {
             // Create Order with PENDING status inside service method
             Order order = orderService.createOrder(user, cartItems, total, fullName, phone, address, city, postalCode, paymentMode);
 
+         // ✅ Save Payment
+         Payment payment = new Payment();
+         payment.setOrder(order); // use the actual Order object
+         payment.setAmount(order.getTotal());
+         payment.setUserName(user.getName());
+         payment.setPaymentDate(LocalDate.now());
+         payment.setPaymentMethod(paymentMode); // e.g., "COD" or "RAZORPAY"
+         if (order.getStatus().equals("Delivered")) {
+        	    payment.setStatus("Completed");
+        	} else {
+        	    payment.setStatus("Incomplete");
+        	}
+        	paymentService.savePayment(payment);
+
+
             // Clear cart after successful order creation
             cartService.clearCart(user);
-
             // Send confirmation email
             String subject = "Order Confirmation - Order #" + order.getId();
             String emailBody = "Dear " + fullName + ",\n\n" +
