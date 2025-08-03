@@ -194,9 +194,43 @@ return orderRepository.save(order);
         orderRepository.save(order);
     }
 
+	/*		If admin want to delete Order with payement then this will work
+	 * 
+	 * @Transactional public void deleteOrderById(Long id) { // Step 1: Try to fetch
+	 * order Order order = orderRepository.findById(id) .orElseThrow(() -> new
+	 * RuntimeException("Order not found with ID: " + id));
+	 * 
+	 * // Step 2: Find and delete associated payments List<Payment> payments =
+	 * paymentRepository.findByOrder(order); for (Payment payment : payments) { //
+	 * Break relationship first to avoid referencing deleted Order
+	 * payment.setOrder(null); paymentRepository.save(payment);
+	 * paymentRepository.delete(payment); }
+	 * 
+	 * // Step 3: Now delete the order orderRepository.delete(order); }
+	 * 
+	 */
+    
+    
+    
+	/*		If admin want to delete Only Order then this will work
+	*/
+    @Transactional
     public void deleteOrderById(Long id) {
-        orderRepository.deleteById(id);
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found with ID: " + id));
+
+        // Detach the order from any payments
+        List<Payment> payments = paymentRepository.findByOrder(order);
+        for (Payment payment : payments) {
+            payment.setOrder(null);  // unlink order
+            paymentRepository.save(payment); // update payment with null order
+        }
+
+        // Now it's safe to delete the order
+        orderRepository.delete(order);
     }
+
+
    
 
     public Page<Order> getOrdersByStatus(String status, int page, int pageSize) {

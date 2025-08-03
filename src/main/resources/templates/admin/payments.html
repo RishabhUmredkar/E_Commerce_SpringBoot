@@ -94,7 +94,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                 <tr th:each="payment : ${payments}">
-                    <td class="px-4 py-3" th:text="${payment.order.id}">ORD123</td>
+    <td class="px-4 py-3" th:text="${payment.order != null ? 'ORD' + payment.order.id : 'Order Deleted'}">Order ID</td>
                     <td class="px-4 py-3" th:text="${payment.userName}">John Doe</td>
                     <td class="px-4 py-3" th:text="'₹' + ${payment.amount}">₹1500</td>
                     <td class="px-4 py-3" th:text="${#temporals.format(payment.paymentDate, 'dd MMM yyyy')}">01 Aug 2025</td>

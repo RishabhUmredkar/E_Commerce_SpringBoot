@@ -16,10 +16,18 @@ public class Payment {
     private String paymentMethod;
     private String status;
     private LocalDate paymentDate;
-
-    @ManyToOne
-    @JoinColumn(name = "order_id", referencedColumnName = "id")
-    private Order order; // <-- use this to link payment to an order
+	
+    
+    /*    // If admin want to delete order With payment 
+	 * // ✅ AFTER (safe) 
+	 * @ManyToOne(fetch = FetchType.LAZY, optional = true)
+	 * @JoinColumn(name = "order_id", nullable = true) private Order order;
+	 */
+    
+    // If admin want to delete only order not payment 
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "order_id", nullable = true)
+    private Order order;
 
     // Getters and Setters
 
