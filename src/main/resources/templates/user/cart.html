@@ -341,7 +341,7 @@
                 }
 
                 if (currentQty <= 0) {
-                    // Quantity is zero or less — remove the item
+                    // Same as remove
                     fetch('/cart/remove', {
                         method: 'POST',
                         headers: {
@@ -356,7 +356,10 @@
                         }
                     });
                 } else {
-                    // Update the new quantity
+                    // Update quantity instantly like remove does
+                    quantityDisplay.value = currentQty; // ⬅️ Update UI immediately
+                    updateTotals(); // ⬅️ Update totals immediately
+
                     fetch('/cart/update', {
                         method: 'POST',
                         headers: {
@@ -365,14 +368,15 @@
                         },
                         body: `productId=${productId}&action=${action}`
                     }).then(response => {
-                        if (response.ok) {
-                            quantityDisplay.value = currentQty;
-                            updateTotals();
+                        if (!response.ok) {
+                            // If backend fails, revert the change
+                            location.reload();
                         }
                     });
                 }
             });
         });
+
 
         document.querySelectorAll('.remove-btn').forEach(function (button) {
             button.addEventListener('click', function () {
