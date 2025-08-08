@@ -75,8 +75,9 @@
 						</a>  
 <!-- 					    <a href="/order/delivery" class="nav-item nav-link">Checkout</a>       -->
 						<a href="/order/history" class="nav-item nav-link">📜 My	Orders</a>
+						<a href="/logout" class="nav-item nav-link" style="color: red; ">Logout</a>
+						
 					</div>
-                    <a href="/logout" class="btn btn-dark py-2 px-4 d-none d-lg-inline-block">Logout</a>
                 </div>
             </nav>
         </div>
@@ -314,51 +315,67 @@
 
 	<!-- AJAX Cart & Pagination JS -->
 	<script>
-    function updateCartCount() {
-      fetch('/cart/count', {
-        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-      })
-      .then(res => res.json())
-      .then(data => {
-        const cartCountElem = document.getElementById('cart-count');
-        if (cartCountElem && data.count !== undefined) {
-            cartCountElem.textContent = data.count;
-        }
-      })
-      .catch(err => console.error('Error fetching cart count:', err));
-    }
+	function updateCartCount() {
+		  fetch('/cart/count', {
+		    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+		  })
+		  .then(res => res.json())
+		  .then(data => {
+		    const cartCountElem = document.getElementById('cart-count');
+		    if (cartCountElem && data.count !== undefined) {
+		        cartCountElem.textContent = data.count;
+		    }
+		  })
+		  .catch(err => console.error('Error fetching cart count:', err));
+		}
 
-    function addToCart(productId, page) {
-      fetch('/add-to-cart', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: `productId=${productId}&quantity=1&page=${page}`
-      })
-      .then(res => {
-        if (res.ok) {
-            refreshQuantity(productId);
-            updateCartCount();
-        } else {
-            alert("Error adding product to cart");
-        }
-      });
-    }
+		function addToCart(productId, page) {
+		  const qtyElem = document.getElementById(`qty-${productId}`);
+		  const cartControls = document.getElementById(`cart-controls-${productId}`);
 
-    function decreaseFromCart(productId, page) {
-      fetch('/decrease-from-cart', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: `productId=${productId}&page=${page}`
-      })
-      .then(res => {
-        if (res.ok) {
-            refreshQuantity(productId);
-            updateCartCount();
-        } else {
-            alert("Error decreasing product quantity");
-        }
-      });
-    }
+		  // Update UI instantly
+		  let currentQty = parseInt(qtyElem?.textContent || "0", 10) + 1;
+		  if (qtyElem) qtyElem.textContent = currentQty;
+		  if (cartControls) cartControls.style.display = 'inline-block';
+		  updateCartCount();
+
+		  // Send request in background
+		  fetch('/add-to-cart', {
+		    method: 'POST',
+		    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+		    body: `productId=${productId}&quantity=1&page=${page}`
+		  })
+		  .then(res => {
+		    if (!res.ok) {
+		      alert("Error adding product to cart");
+		      refreshQuantity(productId); // revert if server fails
+		    }
+		  });
+		}
+
+		function decreaseFromCart(productId, page) {
+		  const qtyElem = document.getElementById(`qty-${productId}`);
+		  const cartControls = document.getElementById(`cart-controls-${productId}`);
+
+		  // Update UI instantly
+		  let currentQty = parseInt(qtyElem?.textContent || "0", 10) - 1;
+		  if (qtyElem) qtyElem.textContent = currentQty > 0 ? currentQty : 0;
+		  if (cartControls) cartControls.style.display = currentQty > 0 ? 'inline-block' : 'none';
+		  updateCartCount();
+
+		  // Send request in background
+		  fetch('/decrease-from-cart', {
+		    method: 'POST',
+		    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+		    body: `productId=${productId}&page=${page}`
+		  })
+		  .then(res => {
+		    if (!res.ok) {
+		      alert("Error decreasing product quantity");
+		      refreshQuantity(productId); // revert if server fails
+		    }
+		  });
+		}
 
     function refreshQuantity(productId) {
       fetch(`/cart/quantity/${productId}`)

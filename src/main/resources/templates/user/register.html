@@ -25,31 +25,36 @@
 </div>
 <!-- Spinner End -->
 
-<!-- Navbar Start -->
-<div class="container-fluid sticky-top">
-    <div class="container">
-        <nav class="navbar navbar-expand-lg navbar-light p-0">
-            <a href="/" class="navbar-brand">
-                <h2 class="text-white">Hairnic</h2>
-            </a>
-            <button class="navbar-toggler ms-auto me-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarCollapse">
-                <div class="navbar-nav ms-auto">
-                    <a href="/" class="nav-item nav-link">Home</a>
-                    <a href="/about" class="nav-item nav-link">About</a>
-                    <a href="/product" class="nav-item nav-link">Products</a>
-                    <a href="/cart" class="nav-item nav-link">Cart</a>
-                    <a href="/register" class="nav-item nav-link active">Register</a>
-                    <a href="/contact" class="nav-item nav-link">Contact</a>
+
+    <!-- Navbar Start -->
+    <div class="container-fluid sticky-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-light p-0">
+                <a href="/" class="navbar-brand">
+                    <h2 class="text-white">Hairnic</h2>
+                </a>
+                <button type="button" class="navbar-toggler ms-auto me-0" data-bs-toggle="collapse"
+                    data-bs-target="#navbarCollapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <div class="navbar-nav ms-auto">
+                        <a href="/" class="nav-item nav-link">Home</a>
+                        <a href="/about" class="nav-item nav-link">About</a>
+                        <a href="/home" class="nav-item nav-link">Products</a>
+						<a href="/view-cart" class="nav-item nav-link "> 🛒 Cart 
+							<span id="cart-count" th:text="${cartCount}">0 </span>
+						</a>  
+<!-- 					    <a href="/order/delivery" class="nav-item nav-link">Checkout</a>       -->
+						<a href="/order/history" class="nav-item nav-link">📜 My	Orders</a>
+						<a href="/logout" class="nav-item nav-link active" style="color: red;">Logout</a>
+					</div>
                 </div>
-                <a href="#" class="btn btn-dark py-2 px-4 d-none d-lg-inline-block">Shop Now</a>
-            </div>
-        </nav>
+            </nav>
+        </div>
     </div>
-</div>
-<!-- Navbar End -->
+    <!-- Navbar End -->
+
 
 <!-- Hero Section -->
 <div class="container-fluid bg-primary hero-header mb-5">
