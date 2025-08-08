@@ -64,14 +64,17 @@ public class CartService {
     }
 
     public void decreaseQuantity(String email, Long productId) {
-        Optional<CartItem> optionalItem = cartItemRepo.findByUserEmailAndProductId(email, productId);
-        if (optionalItem.isPresent()) {
-            CartItem item = optionalItem.get();
-            if (item.getQuantity() > 1) {
-                item.setQuantity(item.getQuantity() - 1);
-                cartItemRepo.save(item);
-            } else {
-                cartItemRepo.delete(item);
+        User user = userRepo.findByEmail(email);
+        Product product = productRepo.findById(productId).orElse(null);
+        if (user != null && product != null) {
+            CartItem item = cartItemRepo.findByUserAndProduct(user, product);
+            if (item != null) {
+                if (item.getQuantity() <= 1) {
+                    cartItemRepo.delete(item); // ✅ remove from cart
+                } else {
+                    item.setQuantity(item.getQuantity() - 1);
+                    cartItemRepo.save(item);
+                }
             }
         }
     }
@@ -105,5 +108,16 @@ public class CartService {
     public void clearCart(User user) {
     	cartItemRepo.deleteByUser(user);
     }
+    public void removeFromCart(String email, Long productId) {
+        User user = userRepo.findByEmail(email);
+        Product product = productRepo.findById(productId).orElse(null);
+        if (user != null && product != null) {
+            CartItem item = cartItemRepo.findByUserAndProduct(user, product);
+            if (item != null) {
+                cartItemRepo.delete(item);
+            }
+        }
+    }
+
 
 }

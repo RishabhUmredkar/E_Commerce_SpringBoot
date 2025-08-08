@@ -1,263 +1,423 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+
 <head>
-    <title>Home - Product Listing</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <script th:src="@{/js/script.js}"></script>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 0;
-        }
+<meta charset="utf-8">
+<title>Hairnic - Single Product Website Template</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="" name="keywords">
+<meta content="" name="description">
 
-        h1 {
-            background-color: #333;
-            color: white;
-            padding: 20px;
-            margin: 0;
-        }
+<!-- Favicon -->
+<link href="img/favicon.ico" rel="icon">
 
-        .top-bar {
-            text-align: right;
-            background-color: #eee;
-            padding: 10px 20px;
-            font-size: 14px;
-        }
+<!-- Google Web Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+	href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&family=Poppins:wght@200;600;700&display=swap"
+	rel="stylesheet">
 
-        .top-bar a {
-            text-decoration: none;
-            color: #007bff;
-            margin-left: 10px;
-        }
+<!-- Icon Font Stylesheet -->
+<link
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css"
+	rel="stylesheet">
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css"
+	rel="stylesheet">
 
-        .product-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            padding: 20px;
-        }
+<!-- Libraries Stylesheet -->
+<link href="lib/animate/animate.min.css" rel="stylesheet">
+<link href="lib/owlcarousel/assets/owl.carousel.min.css"
+	rel="stylesheet">
 
-        .product-card {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin: 15px;
-            padding: 15px;
-            width: 260px;
-            transition: transform 0.2s ease-in-out;
-        }
+<!-- Customized Bootstrap Stylesheet -->
+<link href="css/bootstrap.min.css" rel="stylesheet">
 
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-        }
-
-        .product-card img {
-            border-radius: 5px;
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-        }
-
-        .product-card h3 {
-            font-size: 18px;
-            margin: 10px 0 5px;
-        }
-
-        .product-card p {
-            font-size: 14px;
-            color: #555;
-        }
-
-        .product-card strong {
-            color: #000;
-        }
-
-        .add-to-cart-form {
-            margin-top: 10px;
-        }
-
-        .add-to-cart-form input[type="number"] {
-            width: 50px;
-            padding: 3px;
-        }
-
-        .add-to-cart-form button {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            margin-left: 5px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-
-        .add-to-cart-form button:hover {
-            background-color: #218838;
-        }
-
-        .login-button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-
-        .login-button:hover {
-            background-color: #0056b3;
-        }
-
-        .cart-info {
-            margin-top: 8px;
-            color: green;
-            font-size: 14px;
-        }
-    </style>
+<!-- Template Stylesheet -->
+<link href="css/style.css" rel="stylesheet">
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<script th:src="@{/js/script.js}"></script>
 </head>
+
 <body>
-    <h1>🛒 Welcome to Our Store</h1>
-
-    <!-- ✅ Top bar -->
-    <div class="top-bar">
-        <div sec:authorize="isAuthenticated()" style="display: inline;">
-            Welcome, <span th:text="${username}">User</span>!
-        </div>
-
-        <div sec:authorize="!isAuthenticated()" style="display: inline;">
-            <a href="/login">Login</a>
-        </div>
-
-        <div sec:authorize="isAuthenticated()" style="display: inline;">
-            <a href="/logout">Logout</a> |
-			<a href="/view-cart" style="position: relative; text-decoration: none;">
-			    🛒 Cart
-			    <span th:text="${cartCount}" 
-			          style="position: absolute; top: -8px; right: -20px; background-color: red; color: white;
-			                 border-radius: 50%; padding: 2px 8px; font-size: 12px;">
-			        0
-			    </span>
-			</a>
-			   <!-- New button for Order History -->
-    <a href="/order/history" style="margin-left: 15px; text-decoration: none; color: #007bff;">
-        📜 My Orders
-    </a>
-        </div>
-    </div>
-
-    <!-- ✅ Product Listing -->
-    <div class="product-container">
-        <div th:each="product : ${products}" class="product-card">
-            <!-- Product Image -->
-						<!-- <div
-							class="w-full h-24 bg-gray-100 flex items-center justify-center rounded overflow-hidden">
-							<img th:src="@{user/products/image/{id}(id=${product.id})}" class="w-24 h-24 object-cover"/>
- <img
-								th:if="${imageMap[product.id]} == null"
-								src="https://i.imgur.com/Q2BAOd2.png"
-								alt="Default Product Image" class="object-cover h-full w-full" />
-
-						</div> -->
-						
-						<div class="w-full h-24 bg-gray-100 flex items-center justify-center rounded overflow-hidden">
-						   <img 
-						    th:src="@{/products/image/{id}(id=${product.id})}"
-						    onerror="this.onerror=null;this.src='https://i.imgur.com/Q2BAOd2.png';" 
-						    alt="Product Image"
-						    class="w-24 h-24 object-cover"
-						/>
-						</div>
-												
-
-            <h3 th:text="${product.name}">Product Name</h3>
-            <p th:text="${product.description}">Description</p>
-            <p><strong>₹</strong><span th:text="${product.price}">Price</span></p>
-
-            <!-- ✅ Add to Cart if logged in -->
-           <!-- ✅ Show if logged in -->
-			<div sec:authorize="isAuthenticated()">
-			    <form th:action="@{/add-to-cart}" method="post" class="add-to-cart-form">
-			        <input type="hidden" name="productId" th:value="${product.id}" />
-			        <button type="submit">Add to Cart</button>
-			    </form>
-			
-			    <!-- ✅ Quantity in cart -->
-			    <!-- ✅ Quantity Controls -->
-			<div th:if="${productQuantities[product.id] > 0}" class="cart-info">
-			
-			    <!-- 🔽 Decrease Quantity -->
-			    <form th:action="@{/decrease-from-cart}" method="post" style="display:inline;">
-			        <input type="hidden" name="productId" th:value="${product.id}" />
-			        <button type="submit" style="padding: 4px 8px;">➖</button>
-			    </form>
-			
-			    <!-- 🔢 Quantity Display -->
-			    <strong th:text="${productQuantities[product.id]}" style="margin: 0 10px;"></strong>
-			
-			    <!-- 🔼 Increase Quantity -->
-			    <form th:action="@{/add-to-cart}" method="post" style="display:inline;">
-			        <input type="hidden" name="productId" th:value="${product.id}" />
-			        <input type="hidden" name="quantity" value="1" />
-			        <button type="submit" style="padding: 4px 8px;">➕</button>
-			    </form>
-			
-			</div>
-
-			</div>
+	<!-- Spinner Start -->
+	<div id="spinner"
+		class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+		<div class="spinner-grow text-primary"
+			style="width: 3rem; height: 3rem;" role="status">
+			<span class="sr-only">Loading...</span>
+		</div>
+	</div>
+	<!-- Spinner End -->
 
 
-            <!-- ✅ Login prompt -->
-            <div sec:authorize="!isAuthenticated()">
-                <a href="/login">
-                    <button type="button" class="login-button">Login to Add to Cart</button>
+    <!-- Navbar Start -->
+    <div class="container-fluid sticky-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-light p-0">
+                <a href="/" class="navbar-brand">
+                    <h2 class="text-white">Hairnic</h2>
                 </a>
-            </div>
+                <button type="button" class="navbar-toggler ms-auto me-0" data-bs-toggle="collapse"
+                    data-bs-target="#navbarCollapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <div class="navbar-nav ms-auto">
+                        <a href="/" class="nav-item nav-link ">Home</a>
+                        <a href="/about" class="nav-item nav-link">About</a>
+                        <a href="/home" class="nav-item nav-link active">Products</a>
+						<a href="/view-cart" class="nav-item nav-link "> 🛒 Cart 
+							<span id="cart-count" th:text="${cartCount}">0 </span>
+						</a>  
+<!-- 					    <a href="/order/delivery" class="nav-item nav-link">Checkout</a>       -->
+						<a href="/order/history" class="nav-item nav-link">📜 My	Orders</a>
+					</div>
+                    <a href="/logout" class="btn btn-dark py-2 px-4 d-none d-lg-inline-block">Logout</a>
+                </div>
+            </nav>
         </div>
     </div>
-    <!-- ✅ Pagination Bar -->
-<div style="text-align: center; padding: 20px;">
-    <div th:if="${totalPages > 1}">
-        <!-- ⏮ Prev -->
-        <a th:if="${currentPage > 0}"
-           th:href="@{/?page={p}(p=${currentPage - 1})}"
-           style="margin: 0 8px;">⏮ Prev</a>
+    <!-- Navbar End -->
 
-        <!-- Page Numbers -->
-        <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-            <a th:href="@{/?page={p}(p=${i})}"
-               th:text="${i + 1}"-
-               th:style="${i == currentPage} ? 'margin: 0 6px; font-weight: bold; color: black; text-decoration: underline;' : 'margin: 0 6px; color: #007bff;'">
-            </a>
-        </span>
 
-        <!-- ⏭ Next -->
-        <a th:if="${currentPage < totalPages - 1}"
-           th:href="@{/?page={p}(p=${currentPage + 1})}"
-           style="margin: 0 8px;">Next ⏭</a>
-    </div>
-</div>
-     <script>
-        window.onload = function() {
-            // Check if the order was completed and clear the cart
-            var orderCompleted = '${session.orderCompleted}';
-            if (orderCompleted === 'true') {
-                // Clear the cart from localStorage
-                localStorage.removeItem("cart");
+	<!-- Hero Start -->
+	<div class="container-fluid bg-primary hero-header mb-5">
+		<div class="container text-center">
+			<h1 class="display-4 text-white mb-3 animated slideInDown">Products</h1>
+			<nav aria-label="breadcrumb">
+				<ol
+					class="breadcrumb justify-content-center mb-0 animated slideInDown">
+					<li class="breadcrumb-item"><a class="text-white" href="#">Home</a></li>
+					<li class="breadcrumb-item"><a class="text-white" href="#">Pages</a></li>
+					<li class="breadcrumb-item text-white active" aria-current="page">Products</li>
+				</ol>
+			</nav>
+		</div>
+	</div>
+	<!-- Hero End -->
 
-                // Reset cart count to 0
-                document.getElementById('cart-count').textContent = '0';
+	
+	<!-- Product Start -->
+	<div class="container-fluid py-5">
+		<div class="container">
+			<div class="mx-auto text-center wow fadeIn" data-wow-delay="0.1s"
+				style="max-width: 600px;">
+				<h1 class="text-primary mb-3">
+					<span class="fw-light text-dark">Our Natural</span> Hair Products
+				</h1>
+				<p class="mb-5">Browse our products and add them to your cart!</p>
+			</div>
+			<!-- Product Grid -->
+			<a id="products"></a>
+			<div id="product-container" class="row g-4 product-container">
+				<div class="col-md-6 col-lg-3 mb-4" th:each="product : ${products}"
+					th:id="'product-card-' + ${product.id}">
+					<div class="product-item text-center border h-100 p-4 product-card">
+						<img class="img-fluid mb-4"
+							th:src="@{/products/image/{id}(id=${product.id})}"
+							onerror="this.onerror=null;this.src='https://i.imgur.com/Q2BAOd2.png';"
+							alt="Product Image" style="height: 200px; object-fit: cover;">
+						<div class="mb-2">
+							<!-- You can add rating logic here if available -->
+						</div>
+						<h6 class="d-inline-block mb-2" th:text="${product.name}">Product
+							Name</h6>
+						<p th:text="${product.description}">Description</p>
+						<h5 class="text-primary mb-3">
+							₹<span th:text="${product.price}">Price</span>
+						</h5>
+						<div sec:authorize="isAuthenticated()">
 
-                // Optionally, reset the session flag on the server (could be done in a backend call)
-                // fetch('/clear-session-cart', { method: 'POST' });
+							<button type="button" class="btn btn-outline-primary px-3"
+								th:onclick="|addToCart(${product.id}, ${currentPage})|">
+								Add to Cart</button>
+							<div class="cart-info mt-2"
+								th:id="'cart-controls-' + ${product.id}"
+								th:style="${productQuantities[product.id] != null and productQuantities[product.id] > 0} ? 'display:inline-block;' : 'display:none;'">
 
-                // After processing, clear the session flag
-                // This can be done by redirecting the user back to the home page with a cleared cart
-                window.location.reload();
-            }
-        };
+								<button type="button"
+									class="btn btn-sm btn-minus rounded-circle bg-light border"
+									th:onclick="|decreaseFromCart(${product.id}, ${currentPage})|">
+									<i class="fa fa-minus"></i>
+								</button>
+								<strong th:id="'qty-' + ${product.id}"
+									th:text="${productQuantities[product.id] != null ? productQuantities[product.id] : 0}"
+									style="width: 32px; display: inline-block; text-align: center; font-size: 18px;">0</strong>
+								<button type="button"
+									class="btn btn-sm btn-plus rounded-circle bg-light border"
+									th:onclick="|addToCart(${product.id}, ${currentPage})|">
+									<i class="fa fa-plus"></i>
+								</button>
+							</div>
+						</div>
+						<div sec:authorize="!isAuthenticated()">
+							<a href="/login">
+								<button type="button" class="btn btn-primary px-3">Login
+									to Add to Cart</button>
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Pagination -->
+			<div class="d-flex justify-content-center py-4">
+				<nav th:if="${totalPages > 1}">
+					<ul class="pagination mb-0">
+						<li class="page-item"
+							th:classappend="${currentPage == 0} ? 'disabled'"><a
+							class="page-link"
+							th:href="|/home?page=${currentPage - 1}#products|"
+							aria-label="Previous"> <span aria-hidden="true">&laquo;
+									Prev</span>
+						</a></li>
+						<li class="page-item"
+							th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+							th:classappend="${i == currentPage} ? 'active'"><a
+							class="page-link" th:href="|/home?page=${i}#products|"
+							th:text="${i + 1}"></a></li>
+						<li class="page-item"
+							th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+							<a class="page-link"
+							th:href="|/home?page=${currentPage + 1}#products|"
+							aria-label="Next"> <span aria-hidden="true">Next
+									&raquo;</span>
+						</a>
+						</li>
+					</ul>
+				</nav>
+			</div>
+
+		</div>
+	</div>
+	<!-- Product End -->
+
+	<!-- Newsletter Start -->
+	<div class="container-fluid newsletter bg-primary py-5 my-5">
+		<div class="container py-5">
+			<div class="mx-auto text-center wow fadeIn" data-wow-delay="0.1s"
+				style="max-width: 600px;">
+				<h1 class="text-white mb-3">
+					<span class="fw-light text-dark">Let's Subscribe</span> The
+					Newsletter
+				</h1>
+				<p class="text-white mb-4">Subscribe now to get 30% discount on
+					any of our products</p>
+			</div>
+			<div class="row justify-content-center">
+				<div class="col-md-7 wow fadeIn" data-wow-delay="0.5s">
+					<div class="position-relative w-100 mt-3 mb-2">
+						<input class="form-control w-100 py-4 ps-4 pe-5" type="text"
+							placeholder="Enter Your Email" style="height: 48px;">
+						<button type="button"
+							class="btn shadow-none position-absolute top-0 end-0 mt-1 me-2">
+							<i class="fa fa-paper-plane text-white fs-4"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Newsletter End -->
+
+	<!-- Footer Start -->
+	<div class="container-fluid bg-white footer">
+		<div class="container py-5">
+			<div class="row g-5">
+				<div class="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.1s">
+					<a href="/.html" class="d-inline-block mb-3">
+						<h1 class="text-primary">Hairnic</h1>
+					</a>
+					<p class="mb-0">Lorem ipsum dolor sit amet, consectetur
+						adipiscing elit. Duis aliquet, erat non malesuada consequat, nibh
+						erat tempus risus, vitae porttitor purus nisl vitae purus.</p>
+				</div>
+				<div class="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.3s">
+					<h5 class="mb-4">Get In Touch</h5>
+					<p>
+						<i class="fa fa-map-marker-alt me-3"></i>123 Street, New York, USA
+					</p>
+					<p>
+						<i class="fa fa-phone-alt me-3"></i>+012 345 67890
+					</p>
+					<p>
+						<i class="fa fa-envelope me-3"></i>info@example.com
+					</p>
+					<div class="d-flex pt-2">
+						<a class="btn btn-square btn-outline-primary me-1" href=""><i
+							class="fab fa-twitter"></i></a> <a
+							class="btn btn-square btn-outline-primary me-1" href=""><i
+							class="fab fa-facebook-f"></i></a> <a
+							class="btn btn-square btn-outline-primary me-1" href=""><i
+							class="fab fa-instagram"></i></a> <a
+							class="btn btn-square btn-outline-primary me-1" href=""><i
+							class="fab fa-linkedin-in"></i></a>
+					</div>
+				</div>
+				<div class="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.5s">
+					<h5 class="mb-4">Our Products</h5>
+					<a class="btn btn-link" href="">Hair Shining Shampoo</a> <a
+						class="btn btn-link" href="">Anti-dandruff Shampoo</a> <a
+						class="btn btn-link" href="">Anti Hair Fall Shampoo</a> <a
+						class="btn btn-link" href="">Hair Growing Shampoo</a> <a
+						class="btn btn-link" href="">Anti smell Shampoo</a>
+				</div>
+				<div class="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.7s">
+					<h5 class="mb-4">Popular Link</h5>
+					<a class="btn btn-link" href="">About Us</a> <a
+						class="btn btn-link" href="">Contact Us</a> <a
+						class="btn btn-link" href="">Privacy Policy</a> <a
+						class="btn btn-link" href="">Terms & Condition</a> <a
+						class="btn btn-link" href="">Career</a>
+				</div>
+			</div>
+		</div>
+		<div class="container wow fadeIn" data-wow-delay="0.1s">
+			<div class="copyright">
+				<div class="row">
+					<div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+						&copy; <a class="border-bottom" href="#">Your Site Name</a>, All
+						Right Reserved. Designed By <a class="border-bottom"
+							href="https://htmlcodex.com">HTML Codex</a>
+					</div>
+					<div class="col-md-6 text-center text-md-end">
+						<div class="footer-menu">
+							<a href="">Home</a> <a href="">Cookies</a> <a href="">Help</a> <a
+								href="">FAQs</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Footer End -->
+
+	<!-- Back to Top -->
+	<a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i
+		class="bi bi-arrow-up"></i></a>
+
+	<!-- JavaScript Libraries -->
+	<script
+		src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="lib/wow/wow.min.js"></script>
+	<script src="lib/easing/easing.min.js"></script>
+	<script src="lib/waypoints/waypoints.min.js"></script>
+	<script src="lib/owlcarousel/owl.carousel.min.js"></script>
+
+	<!-- Template Javascript -->
+	<script src="js/main.js"></script>
+
+	<!-- AJAX Cart & Pagination JS -->
+	<script>
+    function updateCartCount() {
+      fetch('/cart/count', {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      .then(res => res.json())
+      .then(data => {
+        const cartCountElem = document.getElementById('cart-count');
+        if (cartCountElem && data.count !== undefined) {
+            cartCountElem.textContent = data.count;
+        }
+      })
+      .catch(err => console.error('Error fetching cart count:', err));
+    }
+
+    function addToCart(productId, page) {
+      fetch('/add-to-cart', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: `productId=${productId}&quantity=1&page=${page}`
+      })
+      .then(res => {
+        if (res.ok) {
+            refreshQuantity(productId);
+            updateCartCount();
+        } else {
+            alert("Error adding product to cart");
+        }
+      });
+    }
+
+    function decreaseFromCart(productId, page) {
+      fetch('/decrease-from-cart', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: `productId=${productId}&page=${page}`
+      })
+      .then(res => {
+        if (res.ok) {
+            refreshQuantity(productId);
+            updateCartCount();
+        } else {
+            alert("Error decreasing product quantity");
+        }
+      });
+    }
+
+    function refreshQuantity(productId) {
+      fetch(`/cart/quantity/${productId}`)
+      .then(res => res.json())
+      .then(data => {
+        const qty = data.quantity;
+        const qtyElem = document.getElementById(`qty-${productId}`);
+        const cartControls = document.getElementById(`cart-controls-${productId}`);
+
+        if (qtyElem) qtyElem.textContent = qty;
+        if (cartControls) {
+            cartControls.style.display = qty > 0 ? 'inline-block' : 'none';
+        }
+      })
+      .catch(() => {
+        console.error("Failed to refresh quantity for product " + productId);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      function attachPaginationListeners() {
+        document.querySelectorAll('.pagination a').forEach(link => {
+            link.addEventListener('click', function(event) {
+              event.preventDefault();
+              const url = this.href;
+
+              fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+              .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.text();
+              })
+              .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newProducts = doc.querySelector('.product-container');
+                const productsContainer = document.querySelector('.product-container');
+                if (newProducts && productsContainer) {
+                    productsContainer.innerHTML = newProducts.innerHTML;
+                }
+                const newPagination = doc.querySelector('.pagination');
+                const paginationContainer = document.querySelector('.pagination');
+                if (newPagination && paginationContainer) {
+                    paginationContainer.innerHTML = newPagination.innerHTML;
+                }
+                const productsAnchor = document.getElementById('products');
+                if (productsAnchor) {
+                    productsAnchor.scrollIntoView({ behavior: 'smooth' });
+                }
+                attachPaginationListeners();
+              })
+              .catch(error => {
+                console.error('Fetch error:', error);
+                window.location.href = url;
+              });
+            });
+        });
+      }
+      attachPaginationListeners();
+    });
     </script>
 </body>
 </html>

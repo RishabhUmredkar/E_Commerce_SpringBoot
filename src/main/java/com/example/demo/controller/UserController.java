@@ -59,70 +59,124 @@ public class UserController {
     @Autowired
     private CartService cartService; // ✅
 
+//    @GetMapping("/")
+//    public String showHomePage(Model model,
+//                               @RequestParam(defaultValue = "0") int page,
+//                               Principal principal) {
+//
+//        int pageSize = 6;
+//        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC, "id"));
+//        Page<Product> productPage = productRepository.findAll(pageable);
+//		List<Product> products = productPage.getContent();
+//
+//		Map<Long, String> imageMap = new HashMap<>();
+//		for (Product p : products) {
+//		    if (p.getImage() != null) {
+//		        imageMap.put(p.getId(), Base64.getEncoder().encodeToString(p.getImage()));
+//		    }
+//		}
+//        model.addAttribute("productPage", productPage);
+//        model.addAttribute("products", productPage.getContent());
+//		model.addAttribute("imageMap", imageMap);
+//        model.addAttribute("currentPage", page);
+//        model.addAttribute("totalPages", productPage.getTotalPages());
+//
+//        if (principal != null) {
+//            model.addAttribute("username", principal.getName());
+//
+//            // ✅ Role check using SecurityContext
+//            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//            boolean isUser = auth.getAuthorities().stream()
+//                                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER"));
+//
+//            if (isUser) {
+//                User user = userRepo.findByEmail(principal.getName());
+//
+//                if (user != null) {
+//                    int cartCount = cartService.getCartItems(user).size();
+//                    model.addAttribute("cartCount", cartCount);
+//
+//                    Map<Long, Integer> productQuantities = new HashMap<>();
+//                    for (Product product : productPage.getContent()) {
+//                        int qty = cartService.getProductQuantityInCart(user, product);
+//                        productQuantities.put(product.getId(), qty);
+//                    }
+//                    model.addAttribute("productQuantities", productQuantities);
+//                }
+//            }
+//        }
+//
+//        return "user/home";
+//    }
+//
+
+
+    // ✅ Index Page (Public)
     @GetMapping("/")
+    public String showIndexPage() {
+        return "user/index";
+    }
+
+
+    // ✅ Home Page (User Only)
+
+    @GetMapping("/home")
     public String showHomePage(Model model,
                                @RequestParam(defaultValue = "0") int page,
                                Principal principal) {
 
-        int pageSize = 6;
+        int pageSize = 4;
         Pageable pageable = PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC, "id"));
         Page<Product> productPage = productRepository.findAll(pageable);
-		List<Product> products = productPage.getContent();
 
-		Map<Long, String> imageMap = new HashMap<>();
-		for (Product p : products) {
-		    if (p.getImage() != null) {
-		        imageMap.put(p.getId(), Base64.getEncoder().encodeToString(p.getImage()));
-		    }
-		}
-        model.addAttribute("productPage", productPage);
-        model.addAttribute("products", productPage.getContent());
-		model.addAttribute("imageMap", imageMap);
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", productPage.getTotalPages());
+        List<Product> products = productPage.getContent();
+        Map<Long, Integer> productQuantities = new HashMap<>();
 
         if (principal != null) {
-            model.addAttribute("username", principal.getName());
+            User user = userRepo.findByEmail(principal.getName());
 
-            // ✅ Role check using SecurityContext
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            boolean isUser = auth.getAuthorities().stream()
-                                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER"));
+            int cartCount = cartService.getCartItems(user).size();
+          model.addAttribute("cartCount", cartCount);
 
-            if (isUser) {
-                User user = userRepo.findByEmail(principal.getName());
-
-                if (user != null) {
-                    int cartCount = cartService.getCartItems(user).size();
-                    model.addAttribute("cartCount", cartCount);
-
-                    Map<Long, Integer> productQuantities = new HashMap<>();
-                    for (Product product : productPage.getContent()) {
-                        int qty = cartService.getProductQuantityInCart(user, product);
-                        productQuantities.put(product.getId(), qty);
-                    }
-                    model.addAttribute("productQuantities", productQuantities);
-                }
+            for (Product product : products) {
+                int qty = cartService.getProductQuantityInCart(user, product);
+                productQuantities.put(product.getId(), qty);
             }
         }
+
+        model.addAttribute("productPage", productPage);
+        model.addAttribute("products", products);
+        model.addAttribute("productQuantities", productQuantities);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", productPage.getTotalPages());
 
         return "user/home";
     }
 
-    // ✅ Login Page
+
+    
+    // ✅ Login Page (Public)
     @GetMapping("/login")
-    public String showLogin() {
-        return "user/login";
+    public String showLoginPage() {
+        return "user/login";  // Serving the login page
     }
 
-    // ✅ Registration Page
+    
+    
+    // ✅ Login Page (Public)
+    @GetMapping("/about")
+    public String About() {
+        return "user/about";  // Serving the login page
+    }
+
+    // ✅ Registration Page (Public)
     @GetMapping("/register")
-    public String showRegister(Model model) {
+    public String showRegisterPage(Model model) {
         model.addAttribute("userDTO", new UserDTO());
-        return "user/register";
+        return "user/register";  // Serving the registration page
     }
 
-    // ✅ Register User and Auto-login
+    // ✅ Register User (POST)
     @PostMapping("/register")
     public String registerUser(@ModelAttribute("userDTO") UserDTO dto, RedirectAttributes redirectAttributes) {
         if (userRepo.findByEmail(dto.getEmail()) != null) {
@@ -133,21 +187,22 @@ public class UserController {
         User user = new User();
         user.setName(dto.getName());
         user.setEmail(dto.getEmail());
-        user.setPassword(encoder.encode(dto.getPassword()));
+        user.setPassword(encoder.encode(dto.getPassword()));  // Encrypt the password
         userRepo.save(user);
 
-        // ✅ Automatically authenticate after registration
-        UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(
-                        user.getEmail(),
-                        null,
-                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
-                );
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                user.getEmail(),
+                null,
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
+        );
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         redirectAttributes.addFlashAttribute("success", "Registered and logged in successfully!");
         return "redirect:/";
     }
+
+ 
+
     @GetMapping("/get-cart-quantity")
     @ResponseBody
     public Map<String, Object> getCartQuantity(@RequestParam Long productId, Principal principal) {

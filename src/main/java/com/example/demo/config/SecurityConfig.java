@@ -9,7 +9,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.core.annotation.Order;
-
 @Configuration
 public class SecurityConfig {
 
@@ -46,7 +45,8 @@ public class SecurityConfig {
         http
             .antMatcher("/admin/**")
             .authorizeRequests()
-                .antMatchers("/admin/login", "/admin/css/**", "/admin/js/**").permitAll()
+                .antMatchers("/admin/login", "/admin/css/**", "/admin/js/**", "/admin/img/**") // Ensure image access for admins
+                .permitAll()
                 .anyRequest().hasRole("ADMIN")
             .and()
             .formLogin()
@@ -71,18 +71,19 @@ public class SecurityConfig {
     public SecurityFilterChain userSecurityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeRequests()
-            .antMatchers(
-                    "/", "/login", "/register", 
-                    "/css/**", "/js/**", "/images/**",
-                    "/products/image/**", "/user/products/image/**"
+                // Permit all static resources (images, css, js, etc.)
+                .antMatchers(
+                    "/", "/login", "/register", "/products/image/**",
+                    "/css/**", "/js/**", "/images/**", "/static/**", "/img/**" // Allowing /img/** for public access
                 ).permitAll()
-                .antMatchers("/user/**", "/add-to-cart", "/cart", "/checkout").hasRole("USER")
+                .antMatchers("/home", "/add-to-cart", "/cart", "/checkout", "/view-cart", "/order/**")
+                .hasRole("USER")
                 .anyRequest().authenticated()
             .and()
             .formLogin()
                 .loginPage("/login")
                 .loginProcessingUrl("/login")
-                .defaultSuccessUrl("/", true)
+                .defaultSuccessUrl("/home", true)
                 .failureUrl("/login?error")
                 .permitAll()
             .and()

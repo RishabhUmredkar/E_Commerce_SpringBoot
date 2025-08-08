@@ -1,21 +1,194 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-<meta charset="ISO-8859-1">
-<title>Insert title here</title>
+    <meta charset="utf-8">
+    <title>Hairnic - Login</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/img/favicon.ico" rel="icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&family=Poppins:wght@200;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Vendor CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/lib/animate/animate.min.css" rel="stylesheet">
+    <link href="/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap & Custom CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
 </head>
+
 <body>
 
+    <!-- Spinner Start -->
+    <div id="spinner"
+        class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-grow text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <!-- Spinner End -->
 
-<form th:action="@{/login}" method="post">
-    <h2>Login</h2>
-    <input type="email" name="username" placeholder="Email" required />
-    <input type="password" name="password" placeholder="Password" required />
-    <button type="submit">Login</button>
-</form>
-<p>Don't have an account? <a href="/register">Register</a></p>
+   
+
+    <!-- Navbar Start -->
+    <div class="container-fluid sticky-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-light p-0">
+                <a href="/" class="navbar-brand">
+                    <h2 class="text-white">Hairnic</h2>
+                </a>
+                <button type="button" class="navbar-toggler ms-auto me-0" data-bs-toggle="collapse"
+                    data-bs-target="#navbarCollapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <div class="navbar-nav ms-auto">
+                        <a href="/" class="nav-item nav-link">Home</a>
+                        <a href="/about" class="nav-item nav-link">About</a>
+                        <a href="/home" class="nav-item nav-link">Products</a>
+						<a href="/view-cart" class="nav-item nav-link "> 🛒 Cart 
+							<span id="cart-count" th:text="${cartCount}">0 </span>
+						</a>  
+					    <a href="/order/delivery" class="nav-item nav-link ">Checkout</a>      
+						<a href="/order/history" class="nav-item nav-link">📜 My	Orders</a>
+					</div>
+                    <a href="/logout" class="btn btn-dark py-2 px-4 d-none d-lg-inline-block">Logout</a>
+                </div>
+            </nav>
+        </div>
+    </div>
+    <!-- Navbar End -->
 
 
 
+
+    <!-- Hero Section -->
+    <div class="container-fluid bg-primary hero-header mb-5">
+        <div class="container text-center">
+            <h1 class="display-4 text-white mb-3">Login</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb justify-content-center">
+                    <li class="breadcrumb-item"><a class="text-white" href="/">Home</a></li>
+                    <li class="breadcrumb-item active text-white" aria-current="page">Login</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Login Form -->
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                <div class="bg-light rounded shadow-sm p-5">
+                    <h2 class="mb-4 text-primary fw-bold text-center">Sign <span class="fw-normal text-dark">In</span></h2>
+                    <form id="loginForm" th:action="@{/login}" method="post" novalidate>
+                        <div class="mb-3">
+                            <label for="loginEmail" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="loginEmail" name="username" placeholder="Enter your email" required>
+                            <div class="invalid-feedback">Please enter a valid email.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="loginPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="loginPassword" name="password" placeholder="Enter password" required minlength="6">
+                            <div class="invalid-feedback">Password must be at least 6 characters.</div>
+                        </div>
+                        <button type="submit" class="btn btn-dark rounded-pill w-100 py-3 text-uppercase fw-semibold">Login</button>
+                        <p class="text-center mt-3 mb-0">Don't have an account? <a href="/register" class="text-primary">Register</a></p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Newsletter -->
+    <div class="container-fluid newsletter bg-primary py-5 my-5">
+        <div class="container py-5 text-center text-white">
+            <h1><span class="fw-light text-dark">Let's Subscribe</span> The Newsletter</h1>
+            <p>Subscribe now to get 30% discount on any of our products</p>
+            <div class="row justify-content-center">
+                <div class="col-md-7">
+                    <div class="position-relative w-100 mt-3 mb-2">
+                        <input class="form-control w-100 py-4 ps-4 pe-5" type="text" placeholder="Enter Your Email">
+                        <button class="btn shadow-none position-absolute top-0 end-0 mt-1 me-2"><i class="fa fa-paper-plane text-white fs-4"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="container-fluid bg-white footer">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-lg-3">
+                    <a href="/" class="d-inline-block mb-3"><h1 class="text-primary">Hairnic</h1></a>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                </div>
+                <div class="col-lg-3">
+                    <h5>Get In Touch</h5>
+                    <p><i class="fa fa-map-marker-alt me-3"></i>123 Street, New York, USA</p>
+                    <p><i class="fa fa-phone-alt me-3"></i>+012 345 67890</p>
+                    <p><i class="fa fa-envelope me-3"></i>info@example.com</p>
+                </div>
+                <div class="col-lg-3">
+                    <h5>Our Products</h5>
+                    <a class="btn btn-link" href="#">Hair Shining Shampoo</a>
+                    <a class="btn btn-link" href="#">Anti-dandruff Shampoo</a>
+                    <a class="btn btn-link" href="#">Anti Hair Fall Shampoo</a>
+                </div>
+                <div class="col-lg-3">
+                    <h5>Popular Links</h5>
+                    <a class="btn btn-link" href="#">About Us</a>
+                    <a class="btn btn-link" href="#">Contact Us</a>
+                    <a class="btn btn-link" href="#">Privacy Policy</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to top -->
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+
+    <!-- Vendor JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/lib/wow/wow.min.js"></script>
+    <script src="/lib/easing/easing.min.js"></script>
+    <script src="/lib/waypoints/waypoints.min.js"></script>
+    <script src="/lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="/js/main.js"></script>
+
+    <!-- Login Form Validation -->
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            let valid = true;
+            const email = document.getElementById('loginEmail');
+            const password = document.getElementById('loginPassword');
+
+            if (!email.value.match(/^[^@]+@[^@]+\.[^@]+$/)) {
+                email.classList.add('is-invalid');
+                valid = false;
+            } else {
+                email.classList.remove('is-invalid');
+            }
+
+            if (password.value.length < 6) {
+                password.classList.add('is-invalid');
+                valid = false;
+            } else {
+                password.classList.remove('is-invalid');
+            }
+
+            if (valid) {
+                this.submit(); // Submits to backend if validation passes
+            }
+        });
+    </script>
 </body>
+
 </html>

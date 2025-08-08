@@ -371,6 +371,15 @@ public class AdminController {
             return "redirect:/admin/settings";  // Redirect back to settings page
         }
 
+        @GetMapping("/order/confirmation/{orderId}")
+        public String orderConfirmation(@PathVariable Long orderId, Model model) {
+            Order order = orderService.findById(orderId);
+            if (order == null) {
+                return "redirect:/"; // or display a 404 page
+            }
+            model.addAttribute("order", order);
+            return "admin/admin-order-confirmation";
+        }
 	/*
 	 * @PostMapping("/admin/products/save") public String
 	 * saveProduct(@RequestParam("name") String name,

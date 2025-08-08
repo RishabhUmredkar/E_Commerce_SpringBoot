@@ -1,214 +1,223 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-  <title>My Orders</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    :root {
-      --primary: #2d6cdf;
-      --accent: #10b981;
-      --bg: #f4f7fa;
-      --text: #2f3542;
-      --muted: #7f8c8d;
-      --card-bg: #ffffff;
-      --border-radius: 12px;
-      --shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-    }
+    <meta charset="utf-8">
+    <title>Hairnic - Delivery Page</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    <!-- Favicon -->
+    <link th:href="@{/img/favicon.ico}" rel="icon">
 
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: var(--bg);
-      padding: 20px;
-      color: var(--text);
-    }
 
-    h1 {
-      text-align: center;
-      font-size: 2em;
-      margin-bottom: 10px;
-      color: var(--primary);
-    }
+<!-- Google Web Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+	href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&family=Poppins:wght@200;600;700&display=swap"
+	rel="stylesheet">
+	
+	
+<!-- Icon Font Stylesheet -->
+<link
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css"
+	rel="stylesheet">
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css"
+	rel="stylesheet">
 
-    p {
-      text-align: center;
-      margin-bottom: 30px;
-      color: var(--muted);
-      font-size: 1em;
-    }
+<!-- Libraries Stylesheet -->
+<link href="lib/animate/animate.min.css" rel="stylesheet">
+<link href="lib/owlcarousel/assets/owl.carousel.min.css"
+	rel="stylesheet">
 
-    .orders-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 24px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
+    <!-- Bootstrap & Main CSS -->
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
 
-    .order-card {
-      background: var(--card-bg);
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
-      padding: 24px;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
+    <!-- Razorpay (optional) -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-    .order-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-    }
 
-    .order-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      font-weight: 600;
-      font-size: 1.05em;
-    }
+<!-- Customized Bootstrap Stylesheet -->
+<link href="css/bootstrap.min.css" rel="stylesheet">
 
-    .order-id {
-      color: var(--primary);
-    }
-
-    .order-date {
-      font-size: 0.9em;
-      color: var(--muted);
-    }
-
-    .order-status {
-      display: inline-block;
-      padding: 6px 14px;
-      border-radius: 50px;
-      font-size: 0.75em;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin-bottom: 15px;
-      width: fit-content;
-    }
-
-    /* Status colors */
-    .status-pending {
-      background: #f39c12;
-      color: white;
-    }
-
-    .status-completed {
-      background: #2ecc71;
-      color: white;
-    }
-
-    .status-cancelled {
-      background: #e74c3c;
-      color: white;
-    }
-
-    .status-processing {
-      background: #3498db;
-      color: white;
-    }
-
-    .order-details {
-      font-size: 0.95em;
-      color: var(--text);
-      margin-bottom: 16px;
-    }
-
-    .order-details div {
-      margin-bottom: 6px;
-    }
-
-    .payment-mode {
-      font-style: italic;
-      color: var(--muted);
-      font-size: 0.9em;
-    }
-
-    .view-link {
-      align-self: flex-start;
-      padding: 10px 20px;
-      border-radius: 50px;
-      background-color: var(--primary);
-      color: white;
-      font-weight: bold;
-      font-size: 0.9em;
-      text-decoration: none;
-      transition: background-color 0.3s ease;
-    }
-
-    .view-link:hover {
-      background-color: #1b4f9b;
-    }
-
-    .empty-message {
-      text-align: center;
-      margin-top: 60px;
-      font-size: 1.2em;
-      color: #95a5a6;
-      font-style: italic;
-    }
-
-    .back-link {
-      display: block;
-      text-align: center;
-      margin-top: 40px;
-      color: var(--primary);
-      font-weight: bold;
-      text-decoration: none;
-      font-size: 0.95em;
-    }
-
-    .back-link:hover {
-      text-decoration: underline;
-    }
-  </style>
+<!-- Template Stylesheet -->
+<link href="css/style.css" rel="stylesheet">
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<script th:src="@{/js/script.js}"></script>
 </head>
 <body>
+    
+ 
+    <!-- Spinner End -->
 
-  <h1>Order History</h1>
-  <p>Welcome, <span th:text="${username}">User</span>!</p>
 
-  <!-- Orders Container -->
-  <div th:if="${orders.size() > 0}" class="orders-container">
-    <div class="order-card" th:each="order : ${orders}">
-
-      <div class="order-header">
-        <span class="order-id" th:text="'Order #' + ${order.id}">Order #1234</span>
-        <span class="order-date" th:text="${#temporals.format(order.orderDate, 'dd MMM yyyy')}">01 Jan 2025</span>
-      </div>
-
-      <div class="order-status"
-           th:text="${order.status}"
-           th:classappend="
-             ${order.status == 'Pending'} ? ' status-pending' :
-             (${order.status == 'Completed'} ? ' status-completed' :
-             (${order.status == 'Cancelled'} ? ' status-cancelled' : ' status-processing'))">
-        Pending
-      </div>
-
-      <div class="order-details">
-        <div><strong>Total:</strong> ₹<span th:text="${order.total}">1000</span></div>
-        <div class="payment-mode" th:text="'Payment: ' + ${order.paymentMode}">Payment: UPI</div>
-      </div>
-
-      <a class="view-link" th:href="@{/order/confirmation/{id}(id=${order.id})}">View Details</a>
+    <!-- Navbar Start -->
+    <div class="container-fluid sticky-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-light p-0">
+                <a href="/" class="navbar-brand">
+                    <h2 class="text-white">Hairnic</h2>
+                </a>
+                <button type="button" class="navbar-toggler ms-auto me-0" data-bs-toggle="collapse"
+                    data-bs-target="#navbarCollapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <div class="navbar-nav ms-auto">
+                        <a href="/" class="nav-item nav-link">Home</a>
+                        <a href="/about" class="nav-item nav-link">About</a>
+                        <a href="/home" class="nav-item nav-link">Products</a>
+						<a href="/view-cart" class="nav-item nav-link "> 🛒 Cart 
+							<span id="cart-count" th:text="${cartCount}">0 </span>
+						</a>  
+						<a href="/order/history" class="nav-item nav-link active">📜 My	Orders</a>
+					</div>
+                    <a href="/logout" class="btn btn-dark py-2 px-4 d-none d-lg-inline-block">Logout</a>
+                </div>
+            </nav>
+        </div>
     </div>
-  </div>
+    <!-- Navbar End -->
 
-  <!-- No orders -->
-  <div th:if="${orders.size() == 0}" class="empty-message">
-    You have no orders yet.
-  </div>
 
-  <a href="/" class="back-link">&larr; Back to Home</a>
 
+    <!-- Hero Start -->
+    <div class="container-fluid bg-primary hero-header mb-5">
+        <div class="container text-center">
+            <h1 class="display-4 text-white mb-3 animated slideInDown">Order History</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb justify-content-center mb-0 animated slideInDown">
+                    <li class="breadcrumb-item"><a class="text-white" href="index.html">Home</a></li>
+                    <li class="breadcrumb-item text-white active" aria-current="page">Order History</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <!-- Hero End -->
+
+    <!-- Order History Start -->
+    <div class="container my-5 py-5">
+        <div class="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style="max-width: 600px;">
+            <h1 class="mb-3"><span class="fw-light text-dark">Your</span> Order <span class="fw-light text-dark">History</span></h1>
+            <p class="mb-5">Welcome, <span th:text="${username}">User</span>!</p>
+        </div>
+        <div th:if="${orders.size() > 0}" class="table-responsive">
+            <table class="table table-bordered table-striped bg-white">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Order #</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="order : ${orders}">
+                        <td th:text="${order.id}">1001</td>
+                        <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd')}">2024-06-01</td>
+                        <td>₹<span th:text="${order.total}">1000</span></td>
+                        <td th:text="${order.paymentMode}">UPI</td>
+                        <td>
+                            <span class="badge"
+    th:text="${order.status}"
+    th:classappend="
+        ${order.status == 'Pending'} ? ' bg-warning text-dark' :
+        (${order.status == 'Delivered'} ? ' bg-success' :
+        (${order.status == 'Cancelled'} ? ' bg-danger' :
+        ' bg-secondary'))">
+    Delivered
+</span>
+
+                        </td>
+                        <td>
+                            <a class="btn btn-sm btn-primary" th:href="@{/order/confirmation/{id}(id=${order.id})}">View Details</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div th:if="${orders.size() == 0}" class="empty-message text-center mt-5">
+            You have no orders yet.
+        </div>
+        <a href="/" class="btn btn-link mt-4">&larr; Back to Home</a>
+    </div>
+    <!-- Order History End -->
+
+    <!-- Footer Start -->
+    <div class="container-fluid bg-white footer">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.1s">
+                    <a href="index.html" class="d-inline-block mb-3">
+                        <h1 class="text-primary">Hairnic</h1>
+                    </a>
+                    <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet, erat non
+                        malesuada consequat, nibh erat tempus risus, vitae porttitor purus nisl vitae purus.</p>
+                </div>
+                <div class="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.3s">
+                    <h5 class="mb-4">Get In Touch</h5>
+                    <p><i class="fa fa-map-marker-alt me-3"></i>123 Street, New York, USA</p>
+                    <p><i class="fa fa-phone-alt me-3"></i>+012 345 67890</p>
+                    <p><i class="fa fa-envelope me-3"></i>info@example.com</p>
+                    <div class="d-flex pt-2">
+                        <a class="btn btn-square btn-outline-primary me-1" href=""><i class="fab fa-twitter"></i></a>
+                        <a class="btn btn-square btn-outline-primary me-1" href=""><i class="fab fa-facebook-f"></i></a>
+                        <a class="btn btn-square btn-outline-primary me-1" href=""><i class="fab fa-instagram"></i></a>
+                        <a class="btn btn-square btn-outline-primary me-1" href=""><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.5s">
+                    <h5 class="mb-4">Our Products</h5>
+                    <a class="btn btn-link" href="">Hair Shining Shampoo</a>
+                    <a class="btn btn-link" href="">Anti-dandruff Shampoo</a>
+                    <a class="btn btn-link" href="">Anti Hair Fall Shampoo</a>
+                    <a class="btn btn-link" href="">Hair Growing Shampoo</a>
+                    <a class="btn btn-link" href="">Anti smell Shampoo</a>
+                </div>
+                <div class="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.7s">
+                    <h5 class="mb-4">Popular Link</h5>
+                    <a class="btn btn-link" href="">About Us</a>
+                    <a class="btn btn-link" href="">Contact Us</a>
+                    <a class="btn btn-link" href="">Privacy Policy</a>
+                    <a class="btn btn-link" href="">Terms & Condition</a>
+                    <a class="btn btn-link" href="">Career</a>
+                </div>
+            </div>
+        </div>
+        <div class="container wow fadeIn" data-wow-delay="0.1s">
+            <div class="copyright">
+                <div class="row">
+                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                        &copy; <a class="border-bottom" href="#">Your Site Name</a>, All Right Reserved.
+                        Designed By <a class="border-bottom" href="https://htmlcodex.com">HTML Codex</a>
+                    </div>
+                    <div class="col-md-6 text-center text-md-end">
+                        <div class="footer-menu">
+                            <a href="">Home</a>
+                            <a href="">Cookies</a>
+                            <a href="">Help</a>
+                            <a href="">FAQs</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+ <!-- JS Libraries -->
+    <script th:src="@{/lib/wow/wow.min.js}"></script>
+    <script th:src="@{/lib/easing/easing.min.js}"></script>
+    <script th:src="@{/lib/waypoints/waypoints.min.js}"></script>
+    <script th:src="@{/lib/owlcarousel/owl.carousel.min.js}"></script>
+
+    <!-- Main JS -->
+    <script th:src="@{/js/main.js}"></script>
 </body>
 </html>
